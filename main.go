@@ -108,6 +108,8 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Could not parse action response JSON: %v", err)
 	}
 
+	log.Println(payload)
+
 	api := slack.New(os.Getenv("BOT_USER_OAUTH_ACCESS_TOKEN"))
 	_, _, err := api.PostMessage(
 		os.Getenv("TEST_CHANNEL_ID"),
