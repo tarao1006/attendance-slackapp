@@ -102,7 +102,7 @@ func handleSlash(w http.ResponseWriter, r *http.Request) {
 
 func handleSubmit(w http.ResponseWriter, r *http.Request) {
 	api := slack.New(os.Getenv("OAUTH_ACCESS_TOKEN"))
-	_, _, err := api.PostMessage(os.Getenv("TEST_CHANNEL_ID"), slack.MsgOptionText("", false))
+	_, _, err := api.PostMessage(os.Getenv("TEST_CHANNEL_ID"), slack.MsgOptionText("", false), slack.MsgOptionAsUser(false))
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
