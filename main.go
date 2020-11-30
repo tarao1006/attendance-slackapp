@@ -115,6 +115,12 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Println(payloadDialogSubmissionCallback)
 
+	var payloadInteractionCallback slack.InteractionCallback
+	if err := json.Unmarshal([]byte(r.FormValue("payload")), &payloadInteractionCallback); err != nil {
+		fmt.Printf("Could not parse action response JSON: %v", err)
+	}
+	log.Println(payloadInteractionCallback)
+
 	api := slack.New(os.Getenv("BOT_USER_OAUTH_ACCESS_TOKEN"))
 	_, _, err := api.PostMessage(
 		os.Getenv("TEST_CHANNEL_ID"),
