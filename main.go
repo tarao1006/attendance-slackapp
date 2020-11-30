@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -102,8 +103,18 @@ func handleSlash(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleSubmit(w http.ResponseWriter, r *http.Request) {
+	var payload slack.ViewSubmissionCallback
+	if err := json.Unmarshal([]byte(r.FormValue("payload")), &payload); err != nil {
+		fmt.Printf("Could not parse action response JSON: %v", err)
+	}
+	log.Println(payload)
+
 	api := slack.New(os.Getenv("BOT_USER_OAUTH_ACCESS_TOKEN"))
-	_, _, err := api.PostMessage(os.Getenv("TEST_CHANNEL_ID"), slack.MsgOptionText("Succeeded", false), slack.MsgOptionAsUser(false))
+	_, _, err := api.PostMessage(
+		os.Getenv("TEST_CHANNEL_ID"),
+		slack.MsgOptionText("Succeeded", false),
+		slack.MsgOptionAsUser(false),
+	)
 	if err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
