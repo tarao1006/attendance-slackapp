@@ -103,11 +103,17 @@ func handleSlash(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleSubmit(w http.ResponseWriter, r *http.Request) {
-	var payload slack.ViewSubmissionCallback
-	if err := json.Unmarshal([]byte(r.FormValue("payload")), &payload); err != nil {
+	var payloadViewSubmissionCallback slack.ViewSubmissionCallback
+	if err := json.Unmarshal([]byte(r.FormValue("payload")), &payloadViewSubmissionCallback); err != nil {
 		fmt.Printf("Could not parse action response JSON: %v", err)
 	}
-	log.Println(payload)
+	log.Println(payloadViewSubmissionCallback)
+
+	var payloadDialogSubmissionCallback slack.DialogSubmissionCallback
+	if err := json.Unmarshal([]byte(r.FormValue("payload")), &payloadDialogSubmissionCallback); err != nil {
+		fmt.Printf("Could not parse action response JSON: %v", err)
+	}
+	log.Println(payloadDialogSubmissionCallback)
 
 	api := slack.New(os.Getenv("BOT_USER_OAUTH_ACCESS_TOKEN"))
 	_, _, err := api.PostMessage(
