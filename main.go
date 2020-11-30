@@ -102,8 +102,14 @@ func handleSlash(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleSubmit(w http.ResponseWriter, r *http.Request) {
-	log.Println(r.Body)
 	fmt.Fprint(w, "Hello World!")
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	log.Printf("%s", body)
+	// api := slack.New(os.Getenv("OAUTH_ACCESS_TOKEN"))
 }
 
 func hello(w http.ResponseWriter, r *http.Request) {
