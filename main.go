@@ -112,7 +112,12 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Channel ID: %s\n", payload.Channel.ID)
 	log.Printf("User    ID: %s\n", payload.User.ID)
 	log.Printf("Hash      : %s", payload.ViewSubmissionCallback.Hash)
-	log.Printf("Values    : %v", payload.View.State.Values)
+
+	for _, v := range payload.View.State.Values {
+		for _, vv := range v {
+			log.Printf("Values    : %s", vv.Value)
+		}
+	}
 
 	api := slack.New(os.Getenv("BOT_USER_OAUTH_ACCESS_TOKEN"))
 	_, _, err := api.PostMessage(
