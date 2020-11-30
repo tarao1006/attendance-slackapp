@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -102,13 +103,14 @@ func handleSlash(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleSubmit(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Hello World!")
-	body, err := ioutil.ReadAll(r.Body)
+	var payload slack.InteractionCallback
+	err := json.Unmarshal([]byte(r.FormValue("payload")), &payload)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	log.Printf("%s", body)
+	log.Print(payload)
+	fmt.Fprint(w, "Hello World!")
 	// api := slack.New(os.Getenv("OAUTH_ACCESS_TOKEN"))
 }
 
