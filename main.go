@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 
@@ -72,6 +73,7 @@ func verifySigningSecret(r *http.Request) error {
 }
 
 func handleSlash(w http.ResponseWriter, r *http.Request) {
+	log.Println(r)
 
 	err := verifySigningSecret(r)
 	if err != nil {
