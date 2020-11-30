@@ -112,6 +112,7 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 	log.Print(payload.Container.ChannelID)
 	fmt.Fprint(w, "Hello World!")
 	// api := slack.New(os.Getenv("OAUTH_ACCESS_TOKEN"))
+	w.WriteHeader(http.StatusOK)
 }
 
 func hello(w http.ResponseWriter, r *http.Request) {
