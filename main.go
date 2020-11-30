@@ -83,6 +83,7 @@ func handleSlash(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s, err := slack.SlashCommandParse(r)
+	log.Println(s)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Println(err.Error())
