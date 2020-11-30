@@ -108,7 +108,7 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Could not parse action response JSON: %v", err)
 	}
 	body, _ := ioutil.ReadAll(r.Body)
-	log.Println(body)
+	log.Printf("%s", body)
 
 	api := slack.New(os.Getenv("BOT_USER_OAUTH_ACCESS_TOKEN"))
 	_, _, err := api.PostMessage(
