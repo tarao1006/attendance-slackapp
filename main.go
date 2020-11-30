@@ -72,8 +72,6 @@ func verifySigningSecret(r *http.Request) error {
 }
 
 func handleSlash(w http.ResponseWriter, r *http.Request) {
-	log.Println(r.Body)
-
 	err := verifySigningSecret(r)
 	if err != nil {
 		fmt.Printf(err.Error())
