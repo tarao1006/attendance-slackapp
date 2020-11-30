@@ -109,7 +109,7 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	log.Print(payload)
+	log.Print(payload.Channel)
 	fmt.Fprint(w, "Hello World!")
 	// api := slack.New(os.Getenv("OAUTH_ACCESS_TOKEN"))
 }
