@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"os"
 
@@ -100,6 +101,11 @@ func handleSlash(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func handleSubmit(w http.ResponseWriter, r *http.Request) {
+	log.Println(r.Body)
+	fmt.Fprint(w, "Hello World!")
+}
+
 func hello(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprint(w, "Hello World!")
 }
@@ -108,5 +114,6 @@ func main() {
 	port := os.Getenv("PORT")
 	http.HandleFunc("/", hello)
 	http.HandleFunc("/test", handleSlash)
+	http.HandleFunc("/submit", handleSubmit)
 	http.ListenAndServe(":"+port, nil)
 }
