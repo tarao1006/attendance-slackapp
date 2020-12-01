@@ -32,7 +32,7 @@ func generateModalRequest() slack.ModalViewRequest {
 
 	datePickerText := slack.NewTextBlockObject("plain_text", "日にち", false, false)
 	datePickerElement := slack.NewDatePickerBlockElement("date")
-	datePicker := slack.NewInputBlock("日にち", dateText, dateElement)
+	datePicker := slack.NewInputBlock("日にち", datePickerText, datePickerElement)
 
 	blocks := slack.Blocks{
 		BlockSet: []slack.Block{
