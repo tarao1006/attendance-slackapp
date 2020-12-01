@@ -13,11 +13,11 @@ import (
 )
 
 func generateModalRequest() slack.ModalViewRequest {
-	titleText := slack.NewTextBlockObject("plain_text", "My App", false, false)
+	titleText := slack.NewTextBlockObject("plain_text", "出席管理App", false, false)
 	closeText := slack.NewTextBlockObject("plain_text", "Close", false, false)
 	submitText := slack.NewTextBlockObject("plain_text", "Submit", false, false)
 
-	headerText := slack.NewTextBlockObject("mrkdwn", "Please enter your name", false, false)
+	headerText := slack.NewTextBlockObject("mrkdwn", "滞在予定時刻を入力してください", false, false)
 	headerSection := slack.NewSectionBlock(headerText, nil, nil)
 
 	datePickerText := slack.NewTextBlockObject("plain_text", "日にち", false, false)
@@ -117,9 +117,15 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 	log.Printf("User    ID: %s\n", payload.User.ID)
 	log.Printf("Hash      : %s", payload.ViewSubmissionCallback.Hash)
 
+	log.Println(payload.View.State.Values)
+
 	for _, v := range payload.View.State.Values {
 		for k, vv := range v {
-			log.Printf("Key : %s   Value : %v", k, vv.Value)
+			if k == "date" {
+				log.Printf("Key : %s   Value : %v", k, vv.SelectedDate)
+			} else if k == "startDate" || k == "endDate" {
+				log.Printf("Key : %s   Value : %v", k, vv.Value)
+			}
 		}
 	}
 
