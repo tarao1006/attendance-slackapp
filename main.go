@@ -20,26 +20,26 @@ func generateModalRequest() slack.ModalViewRequest {
 	headerText := slack.NewTextBlockObject("mrkdwn", "Please enter your name", false, false)
 	headerSection := slack.NewSectionBlock(headerText, nil, nil)
 
-	firstNameText := slack.NewTextBlockObject("plain_text", "First Name", false, false)
-	firstNamePlaceholder := slack.NewTextBlockObject("plain_text", "Enter your first name", false, false)
-	firstNameElement := slack.NewPlainTextInputBlockElement(firstNamePlaceholder, "firstName")
-	firstName := slack.NewInputBlock("First Name", firstNameText, firstNameElement)
-
-	lastNameText := slack.NewTextBlockObject("plain_text", "Last Name", false, false)
-	lastNamePlaceholder := slack.NewTextBlockObject("plain_text", "Enter your first name", false, false)
-	lastNameElement := slack.NewPlainTextInputBlockElement(lastNamePlaceholder, "lastName")
-	lastName := slack.NewInputBlock("Last Name", lastNameText, lastNameElement)
-
 	datePickerText := slack.NewTextBlockObject("plain_text", "日にち", false, false)
 	datePickerElement := slack.NewDatePickerBlockElement("date")
 	datePicker := slack.NewInputBlock("日にち", datePickerText, datePickerElement)
 
+	startTimeText := slack.NewTextBlockObject("plain_text", "Start time", false, false)
+	startTimePlaceholder := slack.NewTextBlockObject("plain_text", "開始時刻を入力", false, false)
+	startTimeElement := slack.NewPlainTextInputBlockElement(startTimePlaceholder, "firstName")
+	startTime := slack.NewInputBlock("開始時刻", startTimeText, startTimeElement)
+
+	endTimeText := slack.NewTextBlockObject("plain_text", "End time", false, false)
+	endTimePlaceholder := slack.NewTextBlockObject("plain_text", "終了時刻を入力", false, false)
+	endTimeElement := slack.NewPlainTextInputBlockElement(endTimePlaceholder, "firstName")
+	endTime := slack.NewInputBlock("終了時刻", endTimeText, endTimeElement)
+
 	blocks := slack.Blocks{
 		BlockSet: []slack.Block{
 			headerSection,
-			firstName,
-			lastName,
 			datePicker,
+			startTime,
+			endTime,
 		},
 	}
 
