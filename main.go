@@ -24,14 +24,14 @@ func generateModalRequest() slack.ModalViewRequest {
 	datePickerElement := slack.NewDatePickerBlockElement("date")
 	datePicker := slack.NewInputBlock("日にち", datePickerText, datePickerElement)
 
-	startTimeText := slack.NewTextBlockObject("plain_text", "Start time", false, false)
+	startTimeText := slack.NewTextBlockObject("plain_text", "開始時刻", false, false)
 	startTimePlaceholder := slack.NewTextBlockObject("plain_text", "開始時刻を入力", false, false)
-	startTimeElement := slack.NewPlainTextInputBlockElement(startTimePlaceholder, "firstName")
+	startTimeElement := slack.NewPlainTextInputBlockElement(startTimePlaceholder, "startTime")
 	startTime := slack.NewInputBlock("開始時刻", startTimeText, startTimeElement)
 
-	endTimeText := slack.NewTextBlockObject("plain_text", "End time", false, false)
+	endTimeText := slack.NewTextBlockObject("plain_text", "終了時刻", false, false)
 	endTimePlaceholder := slack.NewTextBlockObject("plain_text", "終了時刻を入力", false, false)
-	endTimeElement := slack.NewPlainTextInputBlockElement(endTimePlaceholder, "firstName")
+	endTimeElement := slack.NewPlainTextInputBlockElement(endTimePlaceholder, "endTime")
 	endTime := slack.NewInputBlock("終了時刻", endTimeText, endTimeElement)
 
 	blocks := slack.Blocks{
@@ -118,8 +118,8 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 	log.Printf("Hash      : %s", payload.ViewSubmissionCallback.Hash)
 
 	for _, v := range payload.View.State.Values {
-		for _, vv := range v {
-			log.Printf("Values    : %s", vv.Value)
+		for k, vv := range v {
+			log.Printf("Key : %s   Value : %v", k, vv.Value)
 		}
 	}
 
