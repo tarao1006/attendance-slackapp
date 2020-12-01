@@ -43,18 +43,19 @@ func generateModalRequest() slack.ModalViewRequest {
 		},
 	}
 
-	var modalRequest slack.ModalViewRequest
-	modalRequest.Type = slack.ViewType("modal")
-	modalRequest.Title = titleText
-	modalRequest.Close = closeText
-	modalRequest.Submit = submitText
-	modalRequest.Blocks = blocks
+	modalRequest := slack.ModalViewRequest{
+		Type:   slack.ViewType("modal"),
+		Title:  titleText,
+		Close:  closeText,
+		Submit: submitText,
+		Blocks: blocks,
+	}
+
 	return modalRequest
 }
 
 func verifySigningSecret(r *http.Request) error {
-	signingSecret := os.Getenv("SIGNING_SECRET")
-	verifier, err := slack.NewSecretsVerifier(r.Header, signingSecret)
+	verifier, err := slack.NewSecretsVerifier(r.Header, os.Getenv("SIGNING_SECRET"))
 	if err != nil {
 		fmt.Println(err.Error())
 		return err
@@ -68,8 +69,12 @@ func verifySigningSecret(r *http.Request) error {
 
 	r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
 
-	verifier.Write(body)
-	if err = verifier.Ensure(); err != nil {
+	if _, err := verifier.Write(body); err != nil {
+		fmt.Println(err.Error())
+		return err
+	}
+
+	if err := verifier.Ensure(); err != nil {
 		fmt.Println(err.Error())
 		return err
 	}
@@ -78,17 +83,16 @@ func verifySigningSecret(r *http.Request) error {
 }
 
 func handleSlash(w http.ResponseWriter, r *http.Request) {
-	err := verifySigningSecret(r)
-	if err != nil {
-		fmt.Printf(err.Error())
+	if err := verifySigningSecret(r); err != nil {
+		fmt.Println(err.Error())
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
 	s, err := slack.SlashCommandParse(r)
 	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Println(err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
@@ -119,20 +123,32 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 
 	log.Println(payload.View.State.Values)
 
+	var (
+		date      string
+		startTime string
+		endTime   string
+	)
 	for _, v := range payload.View.State.Values {
 		for k, vv := range v {
 			if k == "date" {
-				log.Printf("Key : %s   Value : %v", k, vv.SelectedDate)
-			} else if k == "startTime" || k == "endTime" {
-				log.Printf("Key : %s   Value : %v", k, vv.Value)
+				date = vv.SelectedDate
+			} else if k == "startTime" {
+				startTime = vv.Value
+			} else if k == "endTime" {
+				endTime = vv.Value
 			}
 		}
 	}
 
+	message := fmt.Sprintf("Date       : %s\nStart Time : %s\nEnd TIme   : %s", date, startTime, endTime)
+	log.Printf("Date       : %s", date)
+	log.Printf("Start Time : %s", startTime)
+	log.Printf("End TIme   : %s", endTime)
+
 	api := slack.New(os.Getenv("BOT_USER_OAUTH_ACCESS_TOKEN"))
 	_, _, err := api.PostMessage(
 		os.Getenv("TEST_CHANNEL_ID"),
-		slack.MsgOptionText("Succeeded", false),
+		slack.MsgOptionText(message, false),
 		slack.MsgOptionAsUser(false),
 	)
 	if err != nil {
