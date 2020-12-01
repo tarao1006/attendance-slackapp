@@ -22,17 +22,17 @@ func generateModalRequest() slack.ModalViewRequest {
 
 	datePickerText := slack.NewTextBlockObject("plain_text", "日にち", false, false)
 	datePickerElement := slack.NewDatePickerBlockElement("date")
-	datePicker := slack.NewInputBlock("日にち", datePickerText, datePickerElement)
+	datePicker := slack.NewInputBlock("date", datePickerText, datePickerElement)
 
 	startTimeText := slack.NewTextBlockObject("plain_text", "開始時刻", false, false)
 	startTimePlaceholder := slack.NewTextBlockObject("plain_text", "開始時刻を入力", false, false)
 	startTimeElement := slack.NewPlainTextInputBlockElement(startTimePlaceholder, "startTime")
-	startTime := slack.NewInputBlock("開始時刻", startTimeText, startTimeElement)
+	startTime := slack.NewInputBlock("start_time", startTimeText, startTimeElement)
 
 	endTimeText := slack.NewTextBlockObject("plain_text", "終了時刻", false, false)
 	endTimePlaceholder := slack.NewTextBlockObject("plain_text", "終了時刻を入力", false, false)
 	endTimeElement := slack.NewPlainTextInputBlockElement(endTimePlaceholder, "endTime")
-	endTime := slack.NewInputBlock("終了時刻", endTimeText, endTimeElement)
+	endTime := slack.NewInputBlock("end_time", endTimeText, endTimeElement)
 
 	blocks := slack.Blocks{
 		BlockSet: []slack.Block{
@@ -123,7 +123,7 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 		for k, vv := range v {
 			if k == "date" {
 				log.Printf("Key : %s   Value : %v", k, vv.SelectedDate)
-			} else if k == "startDate" || k == "endDate" {
+			} else if k == "startTime" || k == "endTime" {
 				log.Printf("Key : %s   Value : %v", k, vv.Value)
 			}
 		}
