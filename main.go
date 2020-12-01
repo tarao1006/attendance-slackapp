@@ -23,7 +23,6 @@ func generateModalRequest() slack.ModalViewRequest {
 	firstNameText := slack.NewTextBlockObject("plain_text", "First Name", false, false)
 	firstNamePlaceholder := slack.NewTextBlockObject("plain_text", "Enter your first name", false, false)
 	firstNameElement := slack.NewPlainTextInputBlockElement(firstNamePlaceholder, "firstName")
-
 	firstName := slack.NewInputBlock("First Name", firstNameText, firstNameElement)
 
 	lastNameText := slack.NewTextBlockObject("plain_text", "Last Name", false, false)
@@ -31,11 +30,16 @@ func generateModalRequest() slack.ModalViewRequest {
 	lastNameElement := slack.NewPlainTextInputBlockElement(lastNamePlaceholder, "lastName")
 	lastName := slack.NewInputBlock("Last Name", lastNameText, lastNameElement)
 
+	dateText := slack.NewTextBlockObject("plain_text", "日にち", false, false)
+	dateElement := slack.NewDatePickerBlockElement("date")
+	date := slack.NewInputBlock("Last Name", dateText, dateElement)
+
 	blocks := slack.Blocks{
 		BlockSet: []slack.Block{
 			headerSection,
 			firstName,
 			lastName,
+			date,
 		},
 	}
 
