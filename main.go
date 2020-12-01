@@ -134,7 +134,7 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	message := fmt.Sprintf("Date         : %s\nStart Time : %s\nEnd TIme   : %s", date, startTime, endTime)
+	message := fmt.Sprintf("Date\t: %s\nStart Time\t: %s\nEnd Time\t: %s", date, startTime, endTime)
 	log.Printf("User ID    : %s", userID)
 	log.Printf("Date       : %s", date)
 	log.Printf("Start Time : %s", startTime)
