@@ -116,7 +116,7 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Could not parse action response JSON: %v", err)
 	}
 
-	var userID string = payload.User.ID
+	// var userID string = payload.User.ID
 	var (
 		date      string
 		startTime string
@@ -134,17 +134,12 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	message := fmt.Sprintf("Date\t: %s\nStart Time\t: %s\nEnd Time\t: %s", date, startTime, endTime)
-	log.Printf("User ID    : %s", userID)
-	log.Printf("Date       : %s", date)
-	log.Printf("Start Time : %s", startTime)
-	log.Printf("End TIme   : %s", endTime)
+	message := fmt.Sprintf("Date: %s\nStart Time: %s\nEnd Time: %s", date, startTime, endTime)
 
 	api := slack.New(os.Getenv("BOT_USER_OAUTH_ACCESS_TOKEN"))
 	_, _, err := api.PostMessage(
 		os.Getenv("TEST_CHANNEL_ID"),
 		slack.MsgOptionText(message, false),
-		slack.MsgOptionAsUser(false),
 	)
 	if err != nil {
 		log.Println(err)
