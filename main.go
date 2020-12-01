@@ -25,12 +25,12 @@ func generateModalRequest() slack.ModalViewRequest {
 	datePicker := slack.NewInputBlock("date", datePickerText, datePickerElement)
 
 	startTimeText := slack.NewTextBlockObject("plain_text", "開始時刻", false, false)
-	startTimePlaceholder := slack.NewTextBlockObject("plain_text", "開始時刻を入力", false, false)
+	startTimePlaceholder := slack.NewTextBlockObject("plain_text", "開始時刻を入力 (例. 12:00)", false, false)
 	startTimeElement := slack.NewPlainTextInputBlockElement(startTimePlaceholder, "startTime")
 	startTime := slack.NewInputBlock("start_time", startTimeText, startTimeElement)
 
 	endTimeText := slack.NewTextBlockObject("plain_text", "終了時刻", false, false)
-	endTimePlaceholder := slack.NewTextBlockObject("plain_text", "終了時刻を入力", false, false)
+	endTimePlaceholder := slack.NewTextBlockObject("plain_text", "終了時刻を入力 (例. 12:00)", false, false)
 	endTimeElement := slack.NewPlainTextInputBlockElement(endTimePlaceholder, "endTime")
 	endTime := slack.NewInputBlock("end_time", endTimeText, endTimeElement)
 
