@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -22,7 +23,6 @@ func generateModalRequest() slack.ModalViewRequest {
 	firstNameText := slack.NewTextBlockObject("plain_text", "First Name", false, false)
 	firstNamePlaceholder := slack.NewTextBlockObject("plain_text", "Enter your first name", false, false)
 	firstNameElement := slack.NewPlainTextInputBlockElement(firstNamePlaceholder, "firstName")
-
 	firstName := slack.NewInputBlock("First Name", firstNameText, firstNameElement)
 
 	lastNameText := slack.NewTextBlockObject("plain_text", "Last Name", false, false)
@@ -30,11 +30,16 @@ func generateModalRequest() slack.ModalViewRequest {
 	lastNameElement := slack.NewPlainTextInputBlockElement(lastNamePlaceholder, "lastName")
 	lastName := slack.NewInputBlock("Last Name", lastNameText, lastNameElement)
 
+	dateText := slack.NewTextBlockObject("plain_text", "日にち", false, false)
+	dateElement := slack.NewDatePickerBlockElement("date")
+	date := slack.NewInputBlock("Last Name", dateText, dateElement)
+
 	blocks := slack.Blocks{
 		BlockSet: []slack.Block{
 			headerSection,
 			firstName,
 			lastName,
+			date,
 		},
 	}
 
@@ -102,14 +107,32 @@ func handleSlash(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleSubmit(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "Hello World!")
-	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		return
+	var payload slack.InteractionCallback
+	if err := json.Unmarshal([]byte(r.FormValue("payload")), &payload); err != nil {
+		fmt.Printf("Could not parse action response JSON: %v", err)
 	}
-	log.Printf("%s", body)
-	// api := slack.New(os.Getenv("OAUTH_ACCESS_TOKEN"))
+
+	log.Println(payload.Type == slack.InteractionType("view_submission"))
+	log.Printf("Channel ID: %s\n", payload.Channel.ID)
+	log.Printf("User    ID: %s\n", payload.User.ID)
+	log.Printf("Hash      : %s", payload.ViewSubmissionCallback.Hash)
+
+	for _, v := range payload.View.State.Values {
+		for _, vv := range v {
+			log.Printf("Values    : %s", vv.Value)
+		}
+	}
+
+	api := slack.New(os.Getenv("BOT_USER_OAUTH_ACCESS_TOKEN"))
+	_, _, err := api.PostMessage(
+		os.Getenv("TEST_CHANNEL_ID"),
+		slack.MsgOptionText("Succeeded", false),
+		slack.MsgOptionAsUser(false),
+	)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+	}
 }
 
 func hello(w http.ResponseWriter, r *http.Request) {
