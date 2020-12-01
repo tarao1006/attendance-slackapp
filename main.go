@@ -116,13 +116,7 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Could not parse action response JSON: %v", err)
 	}
 
-	log.Println(payload.Type == slack.InteractionType("view_submission"))
-	log.Printf("Channel ID: %s\n", payload.Channel.ID)
-	log.Printf("User    ID: %s\n", payload.User.ID)
-	log.Printf("Hash      : %s", payload.ViewSubmissionCallback.Hash)
-
-	log.Println(payload.View.State.Values)
-
+	var userID string = payload.User.ID
 	var (
 		date      string
 		startTime string
@@ -140,7 +134,8 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	message := fmt.Sprintf("Date       : %s\nStart Time : %s\nEnd TIme   : %s", date, startTime, endTime)
+	message := fmt.Sprintf("Date         : %s\nStart Time : %s\nEnd TIme   : %s", date, startTime, endTime)
+	log.Printf("User ID    : %s", userID)
 	log.Printf("Date       : %s", date)
 	log.Printf("Start Time : %s", startTime)
 	log.Printf("End TIme   : %s", endTime)
