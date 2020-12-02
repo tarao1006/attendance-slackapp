@@ -96,7 +96,7 @@ func handleSlash(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch s.Command {
-	case "/test":
+	case "/add":
 		api := slack.New(os.Getenv("OAUTH_ACCESS_TOKEN"))
 		modalRequest := generateModalRequest()
 		_, err = api.OpenView(s.TriggerID, modalRequest)
@@ -117,13 +117,11 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Could not parse action response JSON: %v", err)
 	}
 
-	var userID string = payload.User.ID
+	// var userID string = payload.User.ID
 	var userName string = payload.User.Name
 	var date string = payload.View.State.Values["date"]["date"].SelectedDate
 	var startTime string = payload.View.State.Values["start_time"]["startTime"].Value
 	var endTime string = payload.View.State.Values["end_time"]["endTime"].Value
-
-	log.Printf("%s, %s, %s, %s, %s", userID, userName, date, startTime, endTime)
 
 	message := fmt.Sprintf("%s が予定を追加しました\nDate: %s\nStart Time: %s\nEnd Time: %s", userName, date, startTime, endTime)
 
@@ -137,14 +135,6 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
-	// if _, err := api.PostEphemeral(
-	// 	os.Getenv("TEST_CHANNEL_ID"),
-	// 	userID,
-	// 	slack.MsgOptionText(message, false),
-	// ); err != nil {
-	// 	log.Println(err)
-	// 	w.WriteHeader(http.StatusInternalServerError)
-	// }
 }
 
 func hello(w http.ResponseWriter, r *http.Request) {
@@ -154,7 +144,7 @@ func hello(w http.ResponseWriter, r *http.Request) {
 func main() {
 	port := os.Getenv("PORT")
 	http.HandleFunc("/", hello)
-	http.HandleFunc("/test", handleSlash)
+	http.HandleFunc("/slash", handleSlash)
 	http.HandleFunc("/submit", handleSubmit)
 	http.ListenAndServe(":"+port, nil)
 }
