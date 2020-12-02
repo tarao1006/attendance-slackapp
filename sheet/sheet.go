@@ -171,22 +171,24 @@ func appendPlan(srv *sheets.Service, spreadsheetID string, updateRange string, s
 }
 
 func appendEnter(srv *sheets.Service, spreadsheetID string, updateRange string, now string) (*sheets.UpdateValuesResponse, error) {
+	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
 	return srv.Spreadsheets.Values.Update(
 		spreadsheetID,
 		updateRange,
 		&sheets.ValueRange{
 			MajorDimension: "COLUMNS",
 			Range:          updateRange,
-			Values:         [][]interface{}{{now + "\n(" + time.Now().Format("15:04") + "-)"}},
+			Values:         [][]interface{}{{now + "\n(" + time.Now().In(jst).Format("15:04") + "-)"}},
 		},
 	).ValueInputOption("USER_ENTERED").Do()
 }
 
 func appendLeave(srv *sheets.Service, spreadsheetID string, updateRange string, now string) (*sheets.UpdateValuesResponse, error) {
+	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
 	values := strings.Split(now, "\n")
 	up := values[0]
 	low := values[1]
-	newLow := up + "\n" + low[:len(low)-1] + time.Now().Format("15:04") + ")"
+	newLow := up + "\n" + low[:len(low)-1] + time.Now().In(jst).Format("15:04") + ")"
 	return srv.Spreadsheets.Values.Update(
 		spreadsheetID,
 		updateRange,

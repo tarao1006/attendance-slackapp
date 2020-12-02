@@ -106,10 +106,11 @@ func handleSlash(w http.ResponseWriter, r *http.Request) {
 			fmt.Printf("Error opening view: %s", err)
 		}
 	case "/in":
+		jst := time.FixedZone("Asia/Tokyo", 9*60*60)
 		userID := s.UserID
 		userName := s.UserName
 		log.Printf("%s %s", userID, userName)
-		sheet.Edit(userID, time.Now().Format("2006-01-02"), "", "", "enter")
+		sheet.Edit(userID, time.Now().In(jst).Format("2006-01-02"), "", "", "enter")
 		message := fmt.Sprintf("%s が入室しました", userName)
 		api := slack.New(os.Getenv("BOT_USER_OAUTH_ACCESS_TOKEN"))
 		if _, _, err := api.PostMessage(
@@ -120,9 +121,10 @@ func handleSlash(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusInternalServerError)
 		}
 	case "/out":
+		jst := time.FixedZone("Asia/Tokyo", 9*60*60)
 		userID := s.UserID
 		userName := s.UserName
-		sheet.Edit(userID, time.Now().Format("2006-01-02"), "", "", "leave")
+		sheet.Edit(userID, time.Now().In(jst).Format("2006-01-02"), "", "", "leave")
 		message := fmt.Sprintf("%s が退室しました", userName)
 		api := slack.New(os.Getenv("BOT_USER_OAUTH_ACCESS_TOKEN"))
 		if _, _, err := api.PostMessage(
