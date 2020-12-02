@@ -142,7 +142,7 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("Could not parse action response JSON: %v", err)
 	}
 
-	// var userID string = payload.User.ID
+	var userID string = payload.User.ID
 	var userName string = payload.User.Name
 	var date string = payload.View.State.Values["date"]["date"].SelectedDate
 	var startTime string = payload.View.State.Values["start_time"]["startTime"].Value
