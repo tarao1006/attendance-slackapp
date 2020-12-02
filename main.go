@@ -107,6 +107,7 @@ func handleSlash(w http.ResponseWriter, r *http.Request) {
 	case "/in":
 		userID := s.UserID
 		userName := s.UserName
+		log.Printf("%s %s", userID, userName)
 		sheet.Edit(userID, "", "", "", "enter")
 		message := fmt.Sprintf("%s が入室しました", userName)
 		api := slack.New(os.Getenv("BOT_USER_OAUTH_ACCESS_TOKEN"))
