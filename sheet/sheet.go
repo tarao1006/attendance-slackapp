@@ -14,7 +14,7 @@ import (
 
 const LAYOUT string = "2006-01-02"
 const BASE_DATE_STRING string = "2020-09-28"
-const BASE_COLUMN_NUMBER int64 = 1 // 129
+const BASE_COLUMN_NUMBER int64 = 129
 
 var TRANSLATE_WEEKDAY = map[string]string{
 	"Monday":    "月",
