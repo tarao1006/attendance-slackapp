@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/slack-go/slack"
 	"github.com/tarao1006/attendance-slackapp/sheet"
@@ -108,7 +109,7 @@ func handleSlash(w http.ResponseWriter, r *http.Request) {
 		userID := s.UserID
 		userName := s.UserName
 		log.Printf("%s %s", userID, userName)
-		sheet.Edit(userID, "", "", "", "enter")
+		sheet.Edit(userID, time.Now().Format("2006-01-02"), "", "", "enter")
 		message := fmt.Sprintf("%s が入室しました", userName)
 		api := slack.New(os.Getenv("BOT_USER_OAUTH_ACCESS_TOKEN"))
 		if _, _, err := api.PostMessage(
@@ -121,7 +122,7 @@ func handleSlash(w http.ResponseWriter, r *http.Request) {
 	case "/out":
 		userID := s.UserID
 		userName := s.UserName
-		sheet.Edit(userID, "", "", "", "leave")
+		sheet.Edit(userID, time.Now().Format("2006-01-02"), "", "", "leave")
 		message := fmt.Sprintf("%s が退室しました", userName)
 		api := slack.New(os.Getenv("BOT_USER_OAUTH_ACCESS_TOKEN"))
 		if _, _, err := api.PostMessage(
