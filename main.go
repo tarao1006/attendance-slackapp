@@ -10,6 +10,7 @@ import (
 	"os"
 
 	"github.com/slack-go/slack"
+	"github.com/tarao1006/attendance-slackapp/sheet"
 )
 
 func generateModalRequest() (modalRequest slack.ModalViewRequest) {
@@ -103,8 +104,32 @@ func handleSlash(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Printf("Error opening view: %s", err)
 		}
-	// case "/in":
-	// s.UserID
+	case "/in":
+		userID := s.UserID
+		userName := s.UserName
+		sheet.Edit(userID, "", "", "", "enter")
+		message := fmt.Sprintf("%s が入室しました", userName)
+		api := slack.New(os.Getenv("BOT_USER_OAUTH_ACCESS_TOKEN"))
+		if _, _, err := api.PostMessage(
+			os.Getenv("TEST_CHANNEL_ID"),
+			slack.MsgOptionText(message, false),
+		); err != nil {
+			log.Println(err)
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+	case "/out":
+		userID := s.UserID
+		userName := s.UserName
+		sheet.Edit(userID, "", "", "", "leave")
+		message := fmt.Sprintf("%s が退室しました", userName)
+		api := slack.New(os.Getenv("BOT_USER_OAUTH_ACCESS_TOKEN"))
+		if _, _, err := api.PostMessage(
+			os.Getenv("TEST_CHANNEL_ID"),
+			slack.MsgOptionText(message, false),
+		); err != nil {
+			log.Println(err)
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	default:
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -125,7 +150,7 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 
 	message := fmt.Sprintf("%s が予定を追加しました\nDate: %s\nStart Time: %s\nEnd Time: %s", userName, date, startTime, endTime)
 
-	// sheet.Edit(userID, date, startTime, endTime, "add")
+	sheet.Edit(userID, date, startTime, endTime, "add")
 
 	api := slack.New(os.Getenv("BOT_USER_OAUTH_ACCESS_TOKEN"))
 	if _, _, err := api.PostMessage(
