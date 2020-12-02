@@ -10,10 +10,9 @@ import (
 	"os"
 
 	"github.com/slack-go/slack"
-	"github.com/tarao1006/attendance-slackapp/sheet"
 )
 
-func generateModalRequest() slack.ModalViewRequest {
+func generateModalRequest() (modalRequest slack.ModalViewRequest) {
 	titleText := slack.NewTextBlockObject("plain_text", "出席管理App", false, false)
 	closeText := slack.NewTextBlockObject("plain_text", "Close", false, false)
 	submitText := slack.NewTextBlockObject("plain_text", "Submit", false, false)
@@ -44,13 +43,11 @@ func generateModalRequest() slack.ModalViewRequest {
 		},
 	}
 
-	modalRequest := slack.ModalViewRequest{
-		Type:   slack.ViewType("modal"),
-		Title:  titleText,
-		Close:  closeText,
-		Submit: submitText,
-		Blocks: blocks,
-	}
+	modalRequest.Type = slack.ViewType("modal")
+	modalRequest.Title = titleText
+	modalRequest.Close = closeText
+	modalRequest.Submit = submitText
+	modalRequest.Blocks = blocks
 
 	return modalRequest
 }
@@ -105,6 +102,8 @@ func handleSlash(w http.ResponseWriter, r *http.Request) {
 		if err != nil {
 			fmt.Printf("Error opening view: %s", err)
 		}
+	// case "/in":
+	// s.UserID
 	default:
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -123,13 +122,14 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 		startTime string
 		endTime   string
 	)
-	for _, v := range payload.View.State.Values {
-		for k, vv := range v {
-			if k == "date" {
+	for k, v := range payload.View.State.Values {
+		log.Println(k)
+		for kk, vv := range v {
+			if kk == "date" {
 				date = vv.SelectedDate
-			} else if k == "startTime" {
+			} else if kk == "startTime" {
 				startTime = vv.Value
-			} else if k == "endTime" {
+			} else if kk == "endTime" {
 				endTime = vv.Value
 			}
 		}
@@ -148,7 +148,7 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}
 
-	sheet.Edit(userID, date, startTime, endTime, "add")
+	// sheet.Edit(userID, date, startTime, endTime, "add")
 }
 
 func hello(w http.ResponseWriter, r *http.Request) {
