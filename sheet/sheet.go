@@ -1,4 +1,4 @@
-package main
+package sheet
 
 import (
 	"context"
@@ -198,10 +198,11 @@ func appendLeave(srv *sheets.Service, spreadsheetID string, updateRange string, 
 	).ValueInputOption("USER_ENTERED").Do()
 }
 
-func Edit(date string, startTime string, endTime string, operationType string) {
+func Edit(userID string, date string, startTime string, endTime string, operationType string) {
 	var targetColumnNumber = getColumnNumber(date)
 	var targetColumnString = convertIntToString(targetColumnNumber)
-	var updateRange = targetColumnString + "8"
+	var targetRowNumber = os.Getenv(userID)
+	var updateRange = targetColumnString + targetRowNumber
 
 	srv, err := initService()
 	if err != nil {

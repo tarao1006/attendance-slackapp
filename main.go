@@ -10,6 +10,7 @@ import (
 	"os"
 
 	"github.com/slack-go/slack"
+	"github.com/tarao1006/attendance-slackapp/sheet"
 )
 
 func generateModalRequest() slack.ModalViewRequest {
@@ -146,6 +147,8 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
+
+	sheet.Edit(userID, date, startTime, endTime, "add")
 }
 
 func hello(w http.ResponseWriter, r *http.Request) {
