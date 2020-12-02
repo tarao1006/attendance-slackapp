@@ -48,6 +48,7 @@ func generateModalRequest() (modalRequest slack.ModalViewRequest) {
 	modalRequest.Close = closeText
 	modalRequest.Submit = submitText
 	modalRequest.Blocks = blocks
+	modalRequest.ClearOnClose = true
 
 	return modalRequest
 }
@@ -124,20 +125,26 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("%s, %s, %s, %s, %s", userID, userName, date, startTime, endTime)
 
-	message := fmt.Sprintf("Date: %s\nStart Time: %s\nEnd Time: %s", date, startTime, endTime)
+	message := fmt.Sprintf("%s が予定を追加しました\nDate: %s\nStart Time: %s\nEnd Time: %s", userName, date, startTime, endTime)
+
+	// sheet.Edit(userID, date, startTime, endTime, "add")
 
 	api := slack.New(os.Getenv("BOT_USER_OAUTH_ACCESS_TOKEN"))
-	_, err := api.PostEphemeral(
+	if _, _, err := api.PostMessage(
 		os.Getenv("TEST_CHANNEL_ID"),
-		userID,
 		slack.MsgOptionText(message, false),
-	)
-	if err != nil {
+	); err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
 	}
-
-	// sheet.Edit(userID, date, startTime, endTime, "add")
+	// if _, err := api.PostEphemeral(
+	// 	os.Getenv("TEST_CHANNEL_ID"),
+	// 	userID,
+	// 	slack.MsgOptionText(message, false),
+	// ); err != nil {
+	// 	log.Println(err)
+	// 	w.WriteHeader(http.StatusInternalServerError)
+	// }
 }
 
 func hello(w http.ResponseWriter, r *http.Request) {
