@@ -117,23 +117,12 @@ func handleSubmit(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var userID string = payload.User.ID
-	var (
-		date      string
-		startTime string
-		endTime   string
-	)
-	for k, v := range payload.View.State.Values {
-		log.Println(k)
-		for kk, vv := range v {
-			if kk == "date" {
-				date = vv.SelectedDate
-			} else if kk == "startTime" {
-				startTime = vv.Value
-			} else if kk == "endTime" {
-				endTime = vv.Value
-			}
-		}
-	}
+	var userName string = payload.User.Name
+	var date string = payload.View.State.Values["date"]["date"].SelectedDate
+	var startTime string = payload.View.State.Values["start_time"]["startTime"].Value
+	var endTime string = payload.View.State.Values["end_time"]["endTime"].Value
+
+	log.Printf("%s, %s, %s, %s, %s", userID, userName, date, startTime, endTime)
 
 	message := fmt.Sprintf("Date: %s\nStart Time: %s\nEnd Time: %s", date, startTime, endTime)
 
