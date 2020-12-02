@@ -92,7 +92,7 @@ func getSheetInfomation(srv *sheets.Service, spreadsheetID string) (int64, int64
 	var nowColumnCount int64
 	var sheetID int64
 	for _, sheet := range respSheet.Sheets {
-		if sheet.Properties.Title == "シート1" {
+		if sheet.Properties.Title == "シート2" {
 			sheetID = sheet.Properties.SheetId
 			nowColumnCount = sheet.Properties.GridProperties.ColumnCount
 		}
