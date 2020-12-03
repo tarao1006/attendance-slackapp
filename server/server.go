@@ -34,7 +34,7 @@ func Route() http.Handler {
 		fmt.Fprint(w, "Hello World!")
 	})
 
-	slackRouter := router.PathPrefix("/slack").Subrouter()
+	slackRouter := router.PathPrefix("/").Subrouter()
 	slackRouter.Use(VerifyingMiddleware)
 	slackRouter.HandleFunc("/slash", controller.HandleSlash)
 	slackRouter.HandleFunc("/submit", controller.HandleSubmit)
