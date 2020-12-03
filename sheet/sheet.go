@@ -57,7 +57,7 @@ func (s *SpreadsheetService) service() (*sheets.Service, error) {
 
 func (s *SpreadsheetService) Add(userID string, date string, startTime string, endTime string) {
 	targetColumnNumber := s.converter.GetColumnNumber(date)
-	updateRange := convertIntToString(targetColumnNumber) + os.Getenv(userID)
+	updateRange := "シート2!" + convertIntToString(targetColumnNumber) + os.Getenv(userID)
 	nowColumnCount, sheetID := s.getSheetInfomation()
 
 	log.Println(updateRange)
@@ -136,7 +136,7 @@ func (s *SpreadsheetService) writeDate(nowColumnCount int64, duration int64) (*s
 	leftColumnString := convertIntToString(nowColumnCount + 1)
 	rightColumnString := convertIntToString(nowColumnCount + duration)
 
-	targetRange := leftColumnString + "2:" + rightColumnString + "3"
+	targetRange := "シート2!" + leftColumnString + "2:" + rightColumnString + "3"
 	dummy := make([][]interface{}, duration)
 
 	for i := 1; i <= int(duration); i++ {
