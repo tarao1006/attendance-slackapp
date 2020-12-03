@@ -57,8 +57,47 @@ func (s *SpreadsheetService) service() (*sheets.Service, error) {
 }
 
 func (s *SpreadsheetService) Add(userID string, date string, startTime string, endTime string) {
-	targetColumnNumber := s.converter.GetColumnNumber(date)
+	s.preExecute(date)
 	updateRange := s.getTargetRange(userID, date)
+
+	if _, err := s.appendPlan(updateRange, startTime, endTime); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func (s *SpreadsheetService) Enter(userID string) {
+	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
+	nowTime := time.Now().In(jst)
+	date := nowTime.Format("2006-01-02")
+	s.preExecute(date)
+	updateRange := s.getTargetRange(userID, date)
+	nowValue := s.getNowValue(updateRange)
+
+	time := nowValue + "\n(" + nowTime.Format("15:04") + "-)"
+	if _, err := s.addEnterTime(updateRange, time); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func (s *SpreadsheetService) Leave(userID string) {
+	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
+	nowTime := time.Now().In(jst)
+	date := nowTime.Format("2006-01-02")
+	s.preExecute(date)
+	updateRange := s.getTargetRange(userID, date)
+	nowValue := s.getNowValue(updateRange)
+
+	values := strings.Split(nowValue, "\n")
+	up := values[0]
+	low := values[1]
+	time := up + "\n" + low[:len(low)-1] + nowTime.Format("15:04") + ")"
+	if _, err := s.addLeaveTime(updateRange, time); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func (s *SpreadsheetService) preExecute(date string) {
+	targetColumnNumber := s.converter.GetColumnNumber(date)
 	nowColumnCount, sheetID := s.getSheetInfomation()
 
 	if nowColumnCount < targetColumnNumber {
@@ -69,9 +108,6 @@ func (s *SpreadsheetService) Add(userID string, date string, startTime string, e
 		if _, err := s.writeDate(nowColumnCount, duration); err != nil {
 			log.Fatal(err)
 		}
-	}
-	if _, err := s.appendPlan(updateRange, startTime, endTime); err != nil {
-		log.Fatal(err)
 	}
 }
 
@@ -176,58 +212,38 @@ func (s *SpreadsheetService) appendPlan(updateRange string, startTime string, en
 	).ValueInputOption("USER_ENTERED").Do()
 }
 
-func (s *SpreadsheetService) Enter(userID string) {
+func (s *SpreadsheetService) addEnterTime(updateRange string, time string) (*sheets.UpdateValuesResponse, error) {
 	srv, err := s.service()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
-	nowTime := time.Now().In(jst)
-
-	updateRange := s.getTargetRange(userID, nowTime.Format("2006-01-02"))
-	nowValue := s.getNowValue(updateRange)
-
-	if _, err := srv.Spreadsheets.Values.Update(
+	return srv.Spreadsheets.Values.Update(
 		s.spreadsheetID,
 		updateRange,
 		&sheets.ValueRange{
 			MajorDimension: "COLUMNS",
 			Range:          updateRange,
-			Values:         [][]interface{}{{nowValue + "\n(" + nowTime.Format("15:04") + "-)"}},
+			Values:         [][]interface{}{{time}},
 		},
-	).ValueInputOption("USER_ENTERED").Do(); err != nil {
-		log.Fatal(err)
-	}
+	).ValueInputOption("USER_ENTERED").Do()
 }
 
-func (s *SpreadsheetService) Leave(userID string) {
+func (s *SpreadsheetService) addLeaveTime(updateRange string, time string) (*sheets.UpdateValuesResponse, error) {
 	srv, err := s.service()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
-	nowTime := time.Now().In(jst)
-
-	updateRange := s.getTargetRange(userID, nowTime.Format("2006-01-02"))
-	nowValue := s.getNowValue(updateRange)
-	values := strings.Split(nowValue, "\n")
-	up := values[0]
-	low := values[1]
-	newValue := up + "\n" + low[:len(low)-1] + nowTime.Format("15:04") + ")"
-
-	if _, err := srv.Spreadsheets.Values.Update(
+	return srv.Spreadsheets.Values.Update(
 		s.spreadsheetID,
 		updateRange,
 		&sheets.ValueRange{
 			MajorDimension: "COLUMNS",
 			Range:          updateRange,
-			Values:         [][]interface{}{{newValue}},
+			Values:         [][]interface{}{{time}},
 		},
-	).ValueInputOption("USER_ENTERED").Do(); err != nil {
-		log.Fatal(err)
-	}
+	).ValueInputOption("USER_ENTERED").Do()
 }
 
 func (s *SpreadsheetService) getNowValue(updateRange string) string {
