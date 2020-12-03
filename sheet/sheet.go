@@ -49,7 +49,7 @@ func NewSpreadsheetService() *SpreadsheetService {
 
 }
 
-func (s *SpreadsheetService) Service() (*sheets.Service, error) {
+func (s *SpreadsheetService) service() (*sheets.Service, error) {
 	ctx := context.Background()
 	tokenSource := s.config.TokenSource(ctx, s.token)
 	return sheets.NewService(ctx, option.WithTokenSource(tokenSource))
@@ -59,6 +59,8 @@ func (s *SpreadsheetService) Add(userID string, date string, startTime string, e
 	targetColumnNumber := s.converter.GetColumnNumber(date)
 	updateRange := convertIntToString(targetColumnNumber) + os.Getenv(userID)
 	nowColumnCount, sheetID := s.getSheetInfomation()
+
+	log.Println(updateRange)
 
 	if nowColumnCount < targetColumnNumber {
 		duration := targetColumnNumber - nowColumnCount
@@ -88,7 +90,7 @@ func convertIntToString(n int64) string {
 }
 
 func (s *SpreadsheetService) getSheetInfomation() (int64, int64) {
-	srv, err := s.Service()
+	srv, err := s.service()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -108,7 +110,7 @@ func (s *SpreadsheetService) getSheetInfomation() (int64, int64) {
 }
 
 func (s *SpreadsheetService) appendColumns(sheetID int64, duration int64) (*sheets.BatchUpdateSpreadsheetResponse, error) {
-	srv, err := s.Service()
+	srv, err := s.service()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -126,7 +128,7 @@ func (s *SpreadsheetService) appendColumns(sheetID int64, duration int64) (*shee
 }
 
 func (s *SpreadsheetService) writeDate(nowColumnCount int64, duration int64) (*sheets.UpdateValuesResponse, error) {
-	srv, err := s.Service()
+	srv, err := s.service()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -154,7 +156,7 @@ func (s *SpreadsheetService) writeDate(nowColumnCount int64, duration int64) (*s
 }
 
 func (s *SpreadsheetService) appendPlan(updateRange string, startTime string, endTime string) (*sheets.UpdateValuesResponse, error) {
-	srv, err := s.Service()
+	srv, err := s.service()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -169,27 +171,6 @@ func (s *SpreadsheetService) appendPlan(updateRange string, startTime string, en
 		},
 	).ValueInputOption("USER_ENTERED").Do()
 }
-
-// func getNowValue(srv *sheets.Service, spreadsheetID string, updateRange string) string {
-// 	resp, err := srv.Spreadsheets.Values.Get(
-// 		spreadsheetID,
-// 		updateRange,
-// 	).Do()
-
-// 	if err != nil {
-// 		log.Println(err.Error())
-// 	}
-
-// 	if len(resp.Values) == 0 {
-// 		return ""
-// 	} else {
-// 		if value, ok := resp.Values[0][0].(string); ok {
-// 			return value
-// 		} else {
-// 			return ""
-// 		}
-// 	}
-// }
 
 // func Enter(srv *sheets.Service, spreadsheetID string, updateRange string, now string) (*sheets.UpdateValuesResponse, error) {
 // 	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
@@ -219,4 +200,25 @@ func (s *SpreadsheetService) appendPlan(updateRange string, startTime string, en
 // 			Values:         [][]interface{}{{newLow}},
 // 		},
 // 	).ValueInputOption("USER_ENTERED").Do()
+// }
+
+// func getNowValue(srv *sheets.Service, spreadsheetID string, updateRange string) string {
+// 	resp, err := srv.Spreadsheets.Values.Get(
+// 		spreadsheetID,
+// 		updateRange,
+// 	).Do()
+
+// 	if err != nil {
+// 		log.Println(err.Error())
+// 	}
+
+// 	if len(resp.Values) == 0 {
+// 		return ""
+// 	} else {
+// 		if value, ok := resp.Values[0][0].(string); ok {
+// 			return value
+// 		} else {
+// 			return ""
+// 		}
+// 	}
 // }
