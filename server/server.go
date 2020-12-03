@@ -8,6 +8,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/slack-go/slack"
 	"github.com/tarao1006/attendance-slackapp/controller"
+	"github.com/tarao1006/attendance-slackapp/middleware"
 )
 
 type Server struct {
@@ -41,9 +42,13 @@ func (s *Server) Route() http.Handler {
 	submitController := controller.NewSubmit(s.client)
 
 	slackRouter := router.PathPrefix("/").Subrouter()
-	slackRouter.Use(VerifyingMiddleware)
-	slackRouter.HandleFunc("/slash", slashController.HandleSlash)
+	slackRouter.Use(middleware.VerifyingMiddleware)
 	slackRouter.HandleFunc("/submit", submitController.HandleSubmit)
+
+	commandRouter := router.PathPrefix("/").Subrouter()
+	commandRouter.Use(middleware.VerifyingMiddleware)
+	commandRouter.Use(middleware.CommandMiddleware)
+	commandRouter.HandleFunc("/slash", slashController.HandleSlash)
 
 	return router
 }
