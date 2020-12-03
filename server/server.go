@@ -28,12 +28,16 @@ func (s *Server) Run() error {
 }
 
 func Route() http.Handler {
-	r := mux.NewRouter()
-	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+	router := mux.NewRouter()
+
+	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "Hello World!")
 	})
-	r.HandleFunc("/slash", controller.HandleSlash)
-	r.HandleFunc("/submit", controller.HandleSubmit)
-	r.Use(VerifyingMiddleware)
-	return r
+
+	slackRouter := router.PathPrefix("/slack").Subrouter()
+	slackRouter.Use(VerifyingMiddleware)
+	slackRouter.HandleFunc("/slash", controller.HandleSlash)
+	slackRouter.HandleFunc("/submit", controller.HandleSubmit)
+
+	return router
 }
