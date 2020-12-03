@@ -48,7 +48,9 @@ func (s *Server) Route() http.Handler {
 	commandRouter := router.PathPrefix("/").Subrouter()
 	commandRouter.Use(middleware.VerifyingMiddleware)
 	commandRouter.Use(middleware.CommandMiddleware)
-	commandRouter.HandleFunc("/slash", slashController.HandleSlash)
+	commandRouter.HandleFunc("/add", slashController.HandleSlash)
+	commandRouter.HandleFunc("/enter", slashController.HandleSlash)
+	commandRouter.HandleFunc("/leave", slashController.HandleSlash)
 
 	return router
 }
