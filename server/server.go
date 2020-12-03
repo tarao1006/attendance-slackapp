@@ -41,13 +41,13 @@ func (s *Server) Route() http.Handler {
 		fmt.Fprint(w, "Hello World!")
 	})
 
-	submitController := controller.NewSubmit(s.client)
+	submitController := controller.NewSubmit(s.client, s.spreadsheetService)
 	slackRouter := router.PathPrefix("/").Subrouter()
 	slackRouter.Use(middleware.VerifyingMiddleware)
 	slackRouter.HandleFunc("/submit", submitController.HandleSubmit)
 
 	addController := controller.NewAdd(s.client)
-	attendanceController := controller.NewAttendance(s.client)
+	attendanceController := controller.NewAttendance(s.client, s.spreadsheetService)
 	commandRouter := router.PathPrefix("/").Subrouter()
 	commandRouter.Use(middleware.VerifyingMiddleware)
 	commandRouter.Use(middleware.CommandMiddleware)
