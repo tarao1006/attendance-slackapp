@@ -3,5 +3,6 @@ token.json
 
 go.sum
 .env
+curl.sh
 
 .DS_Store
