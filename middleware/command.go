@@ -1,16 +1,12 @@
 package middleware
 
 import (
-	"context"
 	"log"
 	"net/http"
 
 	"github.com/slack-go/slack"
+	"github.com/tarao1006/attendance-slackapp/httputil"
 )
-
-type contextKey string
-
-const commandKey contextKey = "command"
 
 func CommandMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -20,7 +16,7 @@ func CommandMiddleware(next http.Handler) http.Handler {
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-		ctx := context.WithValue(r.Context(), commandKey, s)
+		ctx := httputil.SetSlashCommandToContext(r.Context(), &s)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

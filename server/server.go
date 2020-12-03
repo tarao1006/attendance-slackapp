@@ -38,19 +38,20 @@ func (s *Server) Route() http.Handler {
 		fmt.Fprint(w, "Hello World!")
 	})
 
-	slashController := controller.NewSlash(s.client)
 	submitController := controller.NewSubmit(s.client)
-
 	slackRouter := router.PathPrefix("/").Subrouter()
 	slackRouter.Use(middleware.VerifyingMiddleware)
 	slackRouter.HandleFunc("/submit", submitController.HandleSubmit)
 
+	addController := controller.NewAdd(s.client)
+	enterController := controller.NewEnter(s.client)
+	leaveController := controller.NewLeave(s.client)
 	commandRouter := router.PathPrefix("/").Subrouter()
 	commandRouter.Use(middleware.VerifyingMiddleware)
 	commandRouter.Use(middleware.CommandMiddleware)
-	commandRouter.HandleFunc("/add", slashController.HandleSlash)
-	commandRouter.HandleFunc("/enter", slashController.HandleSlash)
-	commandRouter.HandleFunc("/leave", slashController.HandleSlash)
+	commandRouter.HandleFunc("/add", addController.HandleSlash)
+	commandRouter.HandleFunc("/enter", enterController.HandleSlash)
+	commandRouter.HandleFunc("/leave", leaveController.HandleSlash)
 
 	return router
 }

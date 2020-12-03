@@ -2,25 +2,22 @@ package controller
 
 import (
 	"fmt"
-	"log"
 	"net/http"
-	"os"
-	"time"
 
 	"github.com/slack-go/slack"
-	"github.com/tarao1006/attendance-slackapp/sheet"
+	"github.com/tarao1006/attendance-slackapp/httputil"
 )
 
-type Slash struct {
+type Add struct {
 	client *slack.Client
 }
 
-func NewSlash(client *slack.Client) *Slash {
-	return &Slash{client: client}
+func NewAdd(client *slack.Client) *Add {
+	return &Add{client: client}
 }
 
-func (slash *Slash) HandleSlash(w http.ResponseWriter, r *http.Request) {
-	s, err := slack.SlashCommandParse(r)
+func (add *Add) HandleSlash(w http.ResponseWriter, r *http.Request) {
+	s, err := httputil.GetSlashCommandFromContext(r.Context())
 	if err != nil {
 		fmt.Println(err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
@@ -30,36 +27,9 @@ func (slash *Slash) HandleSlash(w http.ResponseWriter, r *http.Request) {
 	switch s.Command {
 	case "/add":
 		modalRequest := generateModalRequest()
-		_, err = slash.client.OpenView(s.TriggerID, modalRequest)
+		_, err = add.client.OpenView(s.TriggerID, modalRequest)
 		if err != nil {
 			fmt.Printf("Error opening view: %s", err)
-		}
-	case "/in":
-		jst := time.FixedZone("Asia/Tokyo", 9*60*60)
-		userID := s.UserID
-		userName := s.UserName
-		log.Printf("%s %s", userID, userName)
-		sheet.Edit(userID, time.Now().In(jst).Format("2006-01-02"), "", "", "enter")
-		message := fmt.Sprintf("%s が入室しました", userName)
-		if _, _, err := slash.client.PostMessage(
-			os.Getenv("TEST_CHANNEL_ID"),
-			slack.MsgOptionText(message, false),
-		); err != nil {
-			log.Println(err)
-			w.WriteHeader(http.StatusInternalServerError)
-		}
-	case "/out":
-		jst := time.FixedZone("Asia/Tokyo", 9*60*60)
-		userID := s.UserID
-		userName := s.UserName
-		sheet.Edit(userID, time.Now().In(jst).Format("2006-01-02"), "", "", "leave")
-		message := fmt.Sprintf("%s が退室しました", userName)
-		if _, _, err := slash.client.PostMessage(
-			os.Getenv("TEST_CHANNEL_ID"),
-			slack.MsgOptionText(message, false),
-		); err != nil {
-			log.Println(err)
-			w.WriteHeader(http.StatusInternalServerError)
 		}
 	default:
 		w.WriteHeader(http.StatusInternalServerError)
