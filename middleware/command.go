@@ -1,37 +1,26 @@
 package middleware
 
 import (
-	"bytes"
-	"fmt"
-	"io/ioutil"
+	"context"
+	"log"
 	"net/http"
-	"os"
 
 	"github.com/slack-go/slack"
 )
 
+type contextKey string
+
+const commandKey contextKey = "command"
+
 func CommandMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		verifier, err := slack.NewSecretsVerifier(r.Header, os.Getenv("SIGNING_SECRET"))
+		s, err := slack.SlashCommandParse(r)
 		if err != nil {
-			fmt.Println(err.Error())
+			log.Println(err.Error())
+			w.WriteHeader(http.StatusInternalServerError)
+			return
 		}
-
-		body, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			fmt.Println(err.Error())
-		}
-
-		r.Body = ioutil.NopCloser(bytes.NewBuffer(body))
-
-		if _, err := verifier.Write(body); err != nil {
-			fmt.Println(err.Error())
-		}
-
-		if err := verifier.Ensure(); err != nil {
-			fmt.Println(err.Error())
-		}
-
-		next.ServeHTTP(w, r)
+		ctx := context.WithValue(r.Context(), commandKey, s)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
