@@ -11,7 +11,15 @@ import (
 	"github.com/tarao1006/attendance-slackapp/sheet"
 )
 
-func HandleSubmit(w http.ResponseWriter, r *http.Request) {
+type Submit struct {
+	client *slack.Client
+}
+
+func NewSubmit(client *slack.Client) *Submit {
+	return &Submit{client: client}
+}
+
+func (submit *Submit) HandleSubmit(w http.ResponseWriter, r *http.Request) {
 	var payload slack.InteractionCallback
 	if err := json.Unmarshal([]byte(r.FormValue("payload")), &payload); err != nil {
 		fmt.Printf("Could not parse action response JSON: %v", err)

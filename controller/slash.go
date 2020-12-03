@@ -11,7 +11,15 @@ import (
 	"github.com/tarao1006/attendance-slackapp/sheet"
 )
 
-func HandleSlash(w http.ResponseWriter, r *http.Request) {
+type Slash struct {
+	client *slack.Client
+}
+
+func NewSlash(client *slack.Client) *Slash {
+	return &Slash{client: client}
+}
+
+func (slash *Slash) HandleSlash(w http.ResponseWriter, r *http.Request) {
 	s, err := slack.SlashCommandParse(r)
 	if err != nil {
 		fmt.Println(err.Error())
@@ -21,9 +29,8 @@ func HandleSlash(w http.ResponseWriter, r *http.Request) {
 
 	switch s.Command {
 	case "/add":
-		api := slack.New(os.Getenv("OAUTH_ACCESS_TOKEN"))
 		modalRequest := generateModalRequest()
-		_, err = api.OpenView(s.TriggerID, modalRequest)
+		_, err = slash.client.OpenView(s.TriggerID, modalRequest)
 		if err != nil {
 			fmt.Printf("Error opening view: %s", err)
 		}
@@ -34,8 +41,7 @@ func HandleSlash(w http.ResponseWriter, r *http.Request) {
 		log.Printf("%s %s", userID, userName)
 		sheet.Edit(userID, time.Now().In(jst).Format("2006-01-02"), "", "", "enter")
 		message := fmt.Sprintf("%s が入室しました", userName)
-		api := slack.New(os.Getenv("BOT_USER_OAUTH_ACCESS_TOKEN"))
-		if _, _, err := api.PostMessage(
+		if _, _, err := slash.client.PostMessage(
 			os.Getenv("TEST_CHANNEL_ID"),
 			slack.MsgOptionText(message, false),
 		); err != nil {
@@ -48,8 +54,7 @@ func HandleSlash(w http.ResponseWriter, r *http.Request) {
 		userName := s.UserName
 		sheet.Edit(userID, time.Now().In(jst).Format("2006-01-02"), "", "", "leave")
 		message := fmt.Sprintf("%s が退室しました", userName)
-		api := slack.New(os.Getenv("BOT_USER_OAUTH_ACCESS_TOKEN"))
-		if _, _, err := api.PostMessage(
+		if _, _, err := slash.client.PostMessage(
 			os.Getenv("TEST_CHANNEL_ID"),
 			slack.MsgOptionText(message, false),
 		); err != nil {

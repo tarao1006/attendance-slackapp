@@ -18,8 +18,11 @@ type Server struct {
 func NewServer() *Server {
 	return &Server{
 		client: slack.New(os.Getenv("BOT_USER_OAUTH_ACCESS_TOKEN")),
-		router: Route(),
 	}
+}
+
+func (s *Server) Init() {
+	s.router = s.Route()
 }
 
 func (s *Server) Run() error {
@@ -27,17 +30,20 @@ func (s *Server) Run() error {
 	return http.ListenAndServe(":"+port, s.router)
 }
 
-func Route() http.Handler {
+func (s *Server) Route() http.Handler {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, "Hello World!")
 	})
 
+	slashController := controller.NewSlash(s.client)
+	submitController := controller.NewSubmit(s.client)
+
 	slackRouter := router.PathPrefix("/").Subrouter()
 	slackRouter.Use(VerifyingMiddleware)
-	slackRouter.HandleFunc("/slash", controller.HandleSlash)
-	slackRouter.HandleFunc("/submit", controller.HandleSubmit)
+	slackRouter.HandleFunc("/slash", slashController.HandleSlash)
+	slackRouter.HandleFunc("/submit", submitController.HandleSubmit)
 
 	return router
 }
