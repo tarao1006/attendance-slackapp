@@ -4,6 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"golang.org/x/oauth2"
@@ -57,10 +58,8 @@ func (s *SpreadsheetService) service() (*sheets.Service, error) {
 
 func (s *SpreadsheetService) Add(userID string, date string, startTime string, endTime string) {
 	targetColumnNumber := s.converter.GetColumnNumber(date)
-	updateRange := "シート2!" + convertIntToString(targetColumnNumber) + os.Getenv(userID)
+	updateRange := s.getTargetRange(userID, date)
 	nowColumnCount, sheetID := s.getSheetInfomation()
-
-	log.Println(updateRange)
 
 	if nowColumnCount < targetColumnNumber {
 		duration := targetColumnNumber - nowColumnCount
@@ -87,6 +86,11 @@ func convertIntToByte(n int64, now []byte) []byte {
 
 func convertIntToString(n int64) string {
 	return string(convertIntToByte(n, make([]byte, 0)))
+}
+
+func (s *SpreadsheetService) getTargetRange(userID string, date string) string {
+	targetColumnNumber := s.converter.GetColumnNumber(date)
+	return "シート2!" + convertIntToString(targetColumnNumber) + os.Getenv(userID)
 }
 
 func (s *SpreadsheetService) getSheetInfomation() (int64, int64) {
@@ -172,53 +176,82 @@ func (s *SpreadsheetService) appendPlan(updateRange string, startTime string, en
 	).ValueInputOption("USER_ENTERED").Do()
 }
 
-// func Enter(srv *sheets.Service, spreadsheetID string, updateRange string, now string) (*sheets.UpdateValuesResponse, error) {
-// 	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
-// 	return srv.Spreadsheets.Values.Update(
-// 		spreadsheetID,
-// 		updateRange,
-// 		&sheets.ValueRange{
-// 			MajorDimension: "COLUMNS",
-// 			Range:          updateRange,
-// 			Values:         [][]interface{}{{now + "\n(" + time.Now().In(jst).Format("15:04") + "-)"}},
-// 		},
-// 	).ValueInputOption("USER_ENTERED").Do()
-// }
+func (s *SpreadsheetService) Enter(userID string) {
+	srv, err := s.service()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-// func Leave(srv *sheets.Service, spreadsheetID string, updateRange string, now string) (*sheets.UpdateValuesResponse, error) {
-// 	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
-// 	values := strings.Split(now, "\n")
-// 	up := values[0]
-// 	low := values[1]
-// 	newLow := up + "\n" + low[:len(low)-1] + time.Now().In(jst).Format("15:04") + ")"
-// 	return srv.Spreadsheets.Values.Update(
-// 		spreadsheetID,
-// 		updateRange,
-// 		&sheets.ValueRange{
-// 			MajorDimension: "COLUMNS",
-// 			Range:          updateRange,
-// 			Values:         [][]interface{}{{newLow}},
-// 		},
-// 	).ValueInputOption("USER_ENTERED").Do()
-// }
+	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
+	nowTime := time.Now().In(jst)
 
-// func getNowValue(srv *sheets.Service, spreadsheetID string, updateRange string) string {
-// 	resp, err := srv.Spreadsheets.Values.Get(
-// 		spreadsheetID,
-// 		updateRange,
-// 	).Do()
+	updateRange := s.getTargetRange(userID, nowTime.Format("2006-01-02"))
+	nowValue := s.getNowValue(updateRange)
 
-// 	if err != nil {
-// 		log.Println(err.Error())
-// 	}
+	if _, err := srv.Spreadsheets.Values.Update(
+		s.spreadsheetID,
+		updateRange,
+		&sheets.ValueRange{
+			MajorDimension: "COLUMNS",
+			Range:          updateRange,
+			Values:         [][]interface{}{{nowValue + "\n(" + nowTime.Format("15:04") + "-)"}},
+		},
+	).ValueInputOption("USER_ENTERED").Do(); err != nil {
+		log.Fatal(err)
+	}
+}
 
-// 	if len(resp.Values) == 0 {
-// 		return ""
-// 	} else {
-// 		if value, ok := resp.Values[0][0].(string); ok {
-// 			return value
-// 		} else {
-// 			return ""
-// 		}
-// 	}
-// }
+func (s *SpreadsheetService) Leave(userID string) {
+	srv, err := s.service()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	jst := time.FixedZone("Asia/Tokyo", 9*60*60)
+	nowTime := time.Now().In(jst)
+
+	updateRange := s.getTargetRange(userID, nowTime.Format("2006-01-02"))
+	nowValue := s.getNowValue(updateRange)
+	values := strings.Split(nowValue, "\n")
+	up := values[0]
+	low := values[1]
+	newValue := up + "\n" + low[:len(low)-1] + nowTime.Format("15:04") + ")"
+
+	if _, err := srv.Spreadsheets.Values.Update(
+		s.spreadsheetID,
+		updateRange,
+		&sheets.ValueRange{
+			MajorDimension: "COLUMNS",
+			Range:          updateRange,
+			Values:         [][]interface{}{{newValue}},
+		},
+	).ValueInputOption("USER_ENTERED").Do(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func (s *SpreadsheetService) getNowValue(updateRange string) string {
+	srv, err := s.service()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	resp, err := srv.Spreadsheets.Values.Get(
+		s.spreadsheetID,
+		updateRange,
+	).Do()
+
+	if err != nil {
+		log.Println(err.Error())
+	}
+
+	if len(resp.Values) == 0 {
+		return ""
+	} else {
+		if value, ok := resp.Values[0][0].(string); ok {
+			return value
+		} else {
+			return ""
+		}
+	}
+}

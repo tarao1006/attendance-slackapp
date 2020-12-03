@@ -39,7 +39,7 @@ func (attendance *Attendance) HandleSlash(w http.ResponseWriter, r *http.Request
 		userID := s.UserID
 		userName := s.UserName
 		log.Printf("%s %s", userID, userName)
-		// sheet.Edit(userID, time.Now().In(jst).Format("2006-01-02"), "", "", "enter")
+		attendance.spreadsheetService.Enter(userID)
 		message := fmt.Sprintf("%s が入室しました", userName)
 		if _, err := attendance.client.PostEphemeral(
 			os.Getenv("ATTENDANCE_CHANNEL_ID"),
@@ -53,7 +53,7 @@ func (attendance *Attendance) HandleSlash(w http.ResponseWriter, r *http.Request
 	case "/out":
 		userID := s.UserID
 		userName := s.UserName
-		// sheet.Edit(userID, time.Now().In(jst).Format("2006-01-02"), "", "", "leave")
+		attendance.spreadsheetService.Leave(userID)
 		message := fmt.Sprintf("%s が退室しました", userName)
 		if _, err := attendance.client.PostEphemeral(
 			os.Getenv("ATTENDANCE_CHANNEL_ID"),
