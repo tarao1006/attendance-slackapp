@@ -8,7 +8,6 @@ import (
 	"os"
 
 	"github.com/slack-go/slack"
-	"github.com/tarao1006/attendance-slackapp/sheet"
 )
 
 type Submit struct {
@@ -22,7 +21,9 @@ func NewSubmit(client *slack.Client) *Submit {
 func (submit *Submit) HandleSubmit(w http.ResponseWriter, r *http.Request) {
 	var payload slack.InteractionCallback
 	if err := json.Unmarshal([]byte(r.FormValue("payload")), &payload); err != nil {
-		fmt.Printf("Could not parse action response JSON: %v", err)
+		log.Printf("Could not parse action response JSON: %v", err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
 	}
 
 	var userID string = payload.User.ID
@@ -33,14 +34,15 @@ func (submit *Submit) HandleSubmit(w http.ResponseWriter, r *http.Request) {
 
 	message := fmt.Sprintf("%s が予定を追加しました\nDate: %s\nStart Time: %s\nEnd Time: %s", userName, date, startTime, endTime)
 
-	sheet.Edit(userID, date, startTime, endTime, "add")
+	// sheet.Edit(userID, date, startTime, endTime, "add")
 
-	api := slack.New(os.Getenv("BOT_USER_OAUTH_ACCESS_TOKEN"))
-	if _, _, err := api.PostMessage(
+	if _, err := submit.client.PostEphemeral(
 		os.Getenv("TEST_CHANNEL_ID"),
+		userID,
 		slack.MsgOptionText(message, false),
 	); err != nil {
 		log.Println(err)
 		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 }
