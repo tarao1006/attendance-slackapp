@@ -44,14 +44,13 @@ func (s *Server) Route() http.Handler {
 	slackRouter.HandleFunc("/submit", submitController.HandleSubmit)
 
 	addController := controller.NewAdd(s.client)
-	enterController := controller.NewEnter(s.client)
-	leaveController := controller.NewLeave(s.client)
+	attendanceController := controller.NewAttendance(s.client)
 	commandRouter := router.PathPrefix("/").Subrouter()
 	commandRouter.Use(middleware.VerifyingMiddleware)
 	commandRouter.Use(middleware.CommandMiddleware)
 	commandRouter.HandleFunc("/add", addController.HandleSlash)
-	commandRouter.HandleFunc("/enter", enterController.HandleSlash)
-	commandRouter.HandleFunc("/leave", leaveController.HandleSlash)
+	commandRouter.HandleFunc("/enter", attendanceController.HandleSlash)
+	commandRouter.HandleFunc("/leave", attendanceController.HandleSlash)
 
 	return router
 }
