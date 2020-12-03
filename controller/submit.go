@@ -8,14 +8,19 @@ import (
 	"os"
 
 	"github.com/slack-go/slack"
+	"github.com/tarao1006/attendance-slackapp/sheet"
 )
 
 type Submit struct {
-	client *slack.Client
+	client             *slack.Client
+	spreadsheetService *sheet.SpreadsheetService
 }
 
-func NewSubmit(client *slack.Client) *Submit {
-	return &Submit{client: client}
+func NewSubmit(client *slack.Client, spreadsheetService *sheet.SpreadsheetService) *Submit {
+	return &Submit{
+		client:             client,
+		spreadsheetService: spreadsheetService,
+	}
 }
 
 func (submit *Submit) HandleSubmit(w http.ResponseWriter, r *http.Request) {
@@ -34,7 +39,7 @@ func (submit *Submit) HandleSubmit(w http.ResponseWriter, r *http.Request) {
 
 	message := fmt.Sprintf("%s が予定を追加しました\nDate: %s\nStart Time: %s\nEnd Time: %s", userName, date, startTime, endTime)
 
-	// sheet.Edit(userID, date, startTime, endTime, "add")
+	submit.spreadsheetService.Add(userID, date, startTime, endTime)
 
 	if _, err := submit.client.PostEphemeral(
 		os.Getenv("ATTENDANCE_CHANNEL_ID"),

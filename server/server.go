@@ -9,16 +9,19 @@ import (
 	"github.com/slack-go/slack"
 	"github.com/tarao1006/attendance-slackapp/controller"
 	"github.com/tarao1006/attendance-slackapp/middleware"
+	"github.com/tarao1006/attendance-slackapp/sheet"
 )
 
 type Server struct {
-	client *slack.Client
-	router http.Handler
+	client             *slack.Client
+	router             http.Handler
+	spreadsheetService *sheet.SpreadsheetService
 }
 
 func NewServer() *Server {
 	return &Server{
-		client: slack.New(os.Getenv("BOT_USER_OAUTH_ACCESS_TOKEN")),
+		client:             slack.New(os.Getenv("BOT_USER_OAUTH_ACCESS_TOKEN")),
+		spreadsheetService: sheet.NewSpreadsheetService(),
 	}
 }
 

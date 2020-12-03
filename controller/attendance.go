@@ -9,17 +9,20 @@ import (
 
 	"github.com/slack-go/slack"
 	"github.com/tarao1006/attendance-slackapp/httputil"
+	"github.com/tarao1006/attendance-slackapp/sheet"
 )
 
 type Attendance struct {
-	client *slack.Client
-	jst    *time.Location
+	client             *slack.Client
+	spreadsheetService *sheet.SpreadsheetService
+	jst                *time.Location
 }
 
-func NewAttendance(client *slack.Client) *Attendance {
+func NewAttendance(client *slack.Client, spreadsheetService *sheet.SpreadsheetService) *Attendance {
 	return &Attendance{
-		client: client,
-		jst:    time.FixedZone("Asia/Tokyo", 9*60*60),
+		client:             client,
+		spreadsheetService: spreadsheetService,
+		jst:                time.FixedZone("Asia/Tokyo", 9*60*60),
 	}
 }
 
