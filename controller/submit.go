@@ -37,7 +37,7 @@ func (submit *Submit) HandleSubmit(w http.ResponseWriter, r *http.Request) {
 	// sheet.Edit(userID, date, startTime, endTime, "add")
 
 	if _, err := submit.client.PostEphemeral(
-		os.Getenv("TEST_CHANNEL_ID"),
+		os.Getenv("ATTENDANCE_CHANNEL_ID"),
 		userID,
 		slack.MsgOptionText(message, false),
 	); err != nil {

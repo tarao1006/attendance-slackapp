@@ -36,7 +36,7 @@ func (enter *Enter) HandleSlash(w http.ResponseWriter, r *http.Request) {
 		sheet.Edit(userID, time.Now().In(jst).Format("2006-01-02"), "", "", "enter")
 		message := fmt.Sprintf("%s が入室しました", userName)
 		if _, _, err := enter.client.PostMessage(
-			os.Getenv("TEST_CHANNEL_ID"),
+			os.Getenv("ATTENDANCE_CHANNEL_ID"),
 			slack.MsgOptionText(message, false),
 		); err != nil {
 			log.Println(err)
