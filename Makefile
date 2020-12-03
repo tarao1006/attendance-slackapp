@@ -1,5 +1,5 @@
 HEROKU:=`which heroku`
-APP_NAME="attendance-slackapp"
+APP_FLAG=-a attendance-slackapp
 
 logs:
-	${HEROKU} logs -a ${APP_NAME} --tail
+	${HEROKU} ${@F} ${APP_FLAG} --tail
