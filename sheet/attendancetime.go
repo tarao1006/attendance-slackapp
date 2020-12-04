@@ -18,7 +18,11 @@ func (t *AttendanceTime) SprintRow() string {
 }
 
 func (t *AttendanceTime) SprintTwoRows() string {
-	return fmt.Sprintf("%s-%s\n(%s-%s)", t.PlanStartTime, t.PlanEndTime, t.StartTime, t.EndTime)
+	if t.PlanStartTime == "" && t.PlanEndTime == "" {
+		return fmt.Sprintf("\n(%s-%s)", t.StartTime, t.EndTime)
+	} else {
+		return fmt.Sprintf("%s-%s\n(%s-%s)", t.PlanStartTime, t.PlanEndTime, t.StartTime, t.EndTime)
+	}
 }
 
 func SplitTimes(value string) *AttendanceTime {

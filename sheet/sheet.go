@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"os"
-	"strings"
 	"time"
 
 	"golang.org/x/oauth2"
@@ -59,8 +58,10 @@ func (s *SpreadsheetService) service() (*sheets.Service, error) {
 func (s *SpreadsheetService) Add(userID string, date string, startTime string, endTime string) {
 	s.preExecute(date)
 	updateRange := s.getTargetRange(userID, date)
+	currentValue := s.getCurrentValue(updateRange)
+	newValue := AddPlan(currentValue, startTime, endTime)
 
-	if _, err := s.appendPlan(updateRange, startTime, endTime); err != nil {
+	if _, err := s.update(updateRange, newValue); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -71,10 +72,10 @@ func (s *SpreadsheetService) Enter(userID string) {
 	date := nowTime.Format("2006-01-02")
 	s.preExecute(date)
 	updateRange := s.getTargetRange(userID, date)
-	nowValue := s.getNowValue(updateRange)
+	currentValue := s.getCurrentValue(updateRange)
+	newValue := AddEnteredTine(currentValue, nowTime.Format("15:04"))
 
-	time := nowValue + "\n(" + nowTime.Format("15:04") + "-)"
-	if _, err := s.addEnterTime(updateRange, time); err != nil {
+	if _, err := s.update(updateRange, newValue); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -85,13 +86,10 @@ func (s *SpreadsheetService) Leave(userID string) {
 	date := nowTime.Format("2006-01-02")
 	s.preExecute(date)
 	updateRange := s.getTargetRange(userID, date)
-	nowValue := s.getNowValue(updateRange)
+	currentValue := s.getCurrentValue(updateRange)
+	newValue := AddLeftTime(currentValue, nowTime.Format("15:04"))
 
-	values := strings.Split(nowValue, "\n")
-	up := values[0]
-	low := values[1]
-	time := up + "\n" + low[:len(low)-1] + nowTime.Format("15:04") + ")"
-	if _, err := s.addLeaveTime(updateRange, time); err != nil {
+	if _, err := s.update(updateRange, newValue); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -195,7 +193,7 @@ func (s *SpreadsheetService) writeDate(nowColumnCount int64, duration int64) (*s
 	).ValueInputOption("USER_ENTERED").Do()
 }
 
-func (s *SpreadsheetService) appendPlan(updateRange string, startTime string, endTime string) (*sheets.UpdateValuesResponse, error) {
+func (s *SpreadsheetService) update(updateRange string, newValue string) (*sheets.UpdateValuesResponse, error) {
 	srv, err := s.service()
 	if err != nil {
 		log.Fatal(err)
@@ -207,46 +205,12 @@ func (s *SpreadsheetService) appendPlan(updateRange string, startTime string, en
 		&sheets.ValueRange{
 			MajorDimension: "COLUMNS",
 			Range:          updateRange,
-			Values:         [][]interface{}{{startTime + "-" + endTime}},
+			Values:         [][]interface{}{{newValue}},
 		},
 	).ValueInputOption("USER_ENTERED").Do()
 }
 
-func (s *SpreadsheetService) addEnterTime(updateRange string, time string) (*sheets.UpdateValuesResponse, error) {
-	srv, err := s.service()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return srv.Spreadsheets.Values.Update(
-		s.spreadsheetID,
-		updateRange,
-		&sheets.ValueRange{
-			MajorDimension: "COLUMNS",
-			Range:          updateRange,
-			Values:         [][]interface{}{{time}},
-		},
-	).ValueInputOption("USER_ENTERED").Do()
-}
-
-func (s *SpreadsheetService) addLeaveTime(updateRange string, time string) (*sheets.UpdateValuesResponse, error) {
-	srv, err := s.service()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return srv.Spreadsheets.Values.Update(
-		s.spreadsheetID,
-		updateRange,
-		&sheets.ValueRange{
-			MajorDimension: "COLUMNS",
-			Range:          updateRange,
-			Values:         [][]interface{}{{time}},
-		},
-	).ValueInputOption("USER_ENTERED").Do()
-}
-
-func (s *SpreadsheetService) getNowValue(updateRange string) string {
+func (s *SpreadsheetService) getCurrentValue(updateRange string) string {
 	srv, err := s.service()
 	if err != nil {
 		log.Fatal(err)
