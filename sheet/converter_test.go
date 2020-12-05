@@ -60,3 +60,38 @@ func TestConverter_GetDate(t *testing.T) {
 		}
 	}
 }
+
+func TestConvertIntToString(t *testing.T) {
+	tests := []struct {
+		ColumnNumber int64
+		Expected     string
+	}{
+		{
+			1,
+			"A",
+		},
+		{
+			2,
+			"B",
+		},
+		{
+			222,
+			"HN",
+		},
+		{
+			666,
+			"YP",
+		},
+		{
+			752,
+			"ABX",
+		},
+	}
+
+	for _, tt := range tests {
+		result := ConvertIntToString(tt.ColumnNumber)
+		if result != tt.Expected {
+			t.Errorf("expected: %s, result: %s", tt.Expected, result)
+		}
+	}
+}

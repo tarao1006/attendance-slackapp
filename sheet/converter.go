@@ -41,3 +41,15 @@ func (c *Converter) GetDate(num int64) time.Time {
 
 	return date
 }
+
+func ConvertIntToByte(n int64, now []byte) []byte {
+	a, b := (n-1)/26, (n-1)%26
+	if a == 0 {
+		return append([]byte{byte(b + 64 + 1)}, now...)
+	}
+	return ConvertIntToByte(a, append([]byte{byte(b + 64 + 1)}, now...))
+}
+
+func ConvertIntToString(n int64) string {
+	return string(ConvertIntToByte(n, make([]byte, 0)))
+}

@@ -119,22 +119,9 @@ func (s *SpreadsheetService) preExecute(date string) {
 	}
 }
 
-func convertIntToByte(n int64, now []byte) []byte {
-	a := (n - 1) / 26
-	b := (n - 1) % 26
-	if a == 0 {
-		return append([]byte{byte(b + 64 + 1)}, now...)
-	}
-	return convertIntToByte(a, append([]byte{byte(b + 64 + 1)}, now...))
-}
-
-func convertIntToString(n int64) string {
-	return string(convertIntToByte(n, make([]byte, 0)))
-}
-
 func (s *SpreadsheetService) getTargetRange(userID string, date string) string {
 	targetColumnNumber := s.converter.GetColumnNumber(date)
-	return "シート2!" + convertIntToString(targetColumnNumber) + os.Getenv(userID)
+	return "シート2!" + ConvertIntToString(targetColumnNumber) + os.Getenv(userID)
 }
 
 func (s *SpreadsheetService) getSheetInfomation() (int64, int64) {
@@ -181,8 +168,8 @@ func (s *SpreadsheetService) writeDate(nowColumnCount int64, duration int64) (*s
 		log.Fatal(err)
 	}
 
-	leftColumnString := convertIntToString(nowColumnCount + 1)
-	rightColumnString := convertIntToString(nowColumnCount + duration)
+	leftColumnString := ConvertIntToString(nowColumnCount + 1)
+	rightColumnString := ConvertIntToString(nowColumnCount + duration)
 
 	targetRange := "シート2!" + leftColumnString + "2:" + rightColumnString + "3"
 	dummy := make([][]interface{}, duration)
