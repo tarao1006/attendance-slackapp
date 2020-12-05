@@ -15,10 +15,13 @@ type AttendanceTime struct {
 
 func (t *AttendanceTime) Format() string {
 	if t.StartTime == "" && t.EndTime == "" {
-		return t.sprintRow()
+		if t.PlanStartTime != "" || t.PlanEndTime != "" {
+			return t.sprintRow()
+		}
 	} else {
 		return t.sprintTwoRows()
 	}
+	return ""
 }
 
 func (t *AttendanceTime) sprintRow() string {
