@@ -92,9 +92,20 @@ func (s *SpreadsheetService) Leave(userID string) {
 	nowTime := time.Now().In(jst)
 	date := nowTime.Format("2006-01-02")
 	s.preExecute(date)
-	updateRange := s.getTargetRange(userID, date)
+	var updateRange = s.getTargetRange(userID, date)
 	currentValue := s.getCurrentValue(updateRange)
-	attendanceTime := AddEnteredTine(currentValue, nowTime.Format("15:04"))
+	var attendanceTime = AddLeftTime(currentValue, nowTime.Format("15:04"))
+
+	if attendanceTime.StartTime == "" {
+		yesterdayRange := s.getTargetRange(userID, nowTime.AddDate(0, 0, -1).Format("2006-01-02"))
+		yesterdayValue := s.getCurrentValue(yesterdayRange)
+		yesterdayAttendanceTime := ExtractTime(yesterdayValue)
+		if yesterdayAttendanceTime.StartTime != "" {
+			attendanceTime = AddLeftTime(yesterdayValue, nowTime.Format("15:04"))
+			updateRange = yesterdayRange
+		}
+	}
+
 	newValue := attendanceTime.SprintTwoRows()
 
 	if _, err := s.update(updateRange, newValue); err != nil {
