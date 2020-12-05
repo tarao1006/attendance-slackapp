@@ -100,7 +100,7 @@ func (s *SpreadsheetService) Leave(userID string) {
 		yesterdayRange := s.getTargetRange(userID, nowTime.AddDate(0, 0, -1).Format("2006-01-02"))
 		yesterdayValue := s.getCurrentValue(yesterdayRange)
 		yesterdayAttendanceTime := ExtractTime(yesterdayValue)
-		if yesterdayAttendanceTime.StartTime != "" {
+		if yesterdayAttendanceTime.StartTime != "" && yesterdayAttendanceTime.EndTime == "" {
 			attendanceTime = AddLeftTime(yesterdayValue, nowTime.Format("15:04"))
 			updateRange = yesterdayRange
 		}
