@@ -40,10 +40,10 @@ func TestAttendanceTime_Format(t *testing.T) {
 		},
 	}
 
-	for _, testCase := range testCases {
-		result := testCase.Format()
-		if result != testCase.expected {
-			t.Errorf("expected: %s, result: %s", testCase.expected, result)
+	for _, tt := range testCases {
+		result := tt.Format()
+		if result != tt.expected {
+			t.Errorf("expected: %s, result: %s", tt.expected, result)
 		}
 	}
 }
