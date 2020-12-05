@@ -82,26 +82,21 @@ func ExtractTime(value string) *AttendanceTime {
 	return &AttendanceTime{}
 }
 
-func AddPlan(currentValue string, planStartTime string, planEndTime string) string {
+func AddPlan(currentValue string, planStartTime string, planEndTime string) *AttendanceTime {
 	attendanceTime := ExtractTime(currentValue)
 	attendanceTime.PlanStartTime = planStartTime
 	attendanceTime.PlanEndTime = planEndTime
-
-	if attendanceTime.StartTime == "" && attendanceTime.EndTime == "" {
-		return attendanceTime.SprintRow()
-	} else {
-		return attendanceTime.SprintTwoRows()
-	}
+	return attendanceTime
 }
 
-func AddEnteredTine(currentValue string, startTime string) string {
+func AddEnteredTine(currentValue string, startTime string) *AttendanceTime {
 	attendanceTime := ExtractTime(currentValue)
 	attendanceTime.StartTime = startTime
-	return attendanceTime.SprintTwoRows()
+	return attendanceTime
 }
 
-func AddLeftTime(currentValue string, endTime string) string {
+func AddLeftTime(currentValue string, endTime string) *AttendanceTime {
 	attendanceTime := ExtractTime(currentValue)
 	attendanceTime.EndTime = endTime
-	return attendanceTime.SprintTwoRows()
+	return attendanceTime
 }

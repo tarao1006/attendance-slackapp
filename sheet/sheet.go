@@ -59,8 +59,14 @@ func (s *SpreadsheetService) Add(userID string, date string, startTime string, e
 	s.preExecute(date)
 	updateRange := s.getTargetRange(userID, date)
 	currentValue := s.getCurrentValue(updateRange)
-	newValue := AddPlan(currentValue, startTime, endTime)
+	attendanceTime := AddPlan(currentValue, startTime, endTime)
 
+	var newValue string
+	if attendanceTime.StartTime == "" && attendanceTime.EndTime == "" {
+		newValue = attendanceTime.SprintRow()
+	} else {
+		newValue = attendanceTime.SprintTwoRows()
+	}
 	if _, err := s.update(updateRange, newValue); err != nil {
 		log.Fatal(err)
 	}
@@ -73,7 +79,8 @@ func (s *SpreadsheetService) Enter(userID string) {
 	s.preExecute(date)
 	updateRange := s.getTargetRange(userID, date)
 	currentValue := s.getCurrentValue(updateRange)
-	newValue := AddEnteredTine(currentValue, nowTime.Format("15:04"))
+	attendanceTime := AddEnteredTine(currentValue, nowTime.Format("15:04"))
+	newValue := attendanceTime.SprintTwoRows()
 
 	if _, err := s.update(updateRange, newValue); err != nil {
 		log.Fatal(err)
@@ -87,7 +94,8 @@ func (s *SpreadsheetService) Leave(userID string) {
 	s.preExecute(date)
 	updateRange := s.getTargetRange(userID, date)
 	currentValue := s.getCurrentValue(updateRange)
-	newValue := AddLeftTime(currentValue, nowTime.Format("15:04"))
+	attendanceTime := AddEnteredTine(currentValue, nowTime.Format("15:04"))
+	newValue := attendanceTime.SprintTwoRows()
 
 	if _, err := s.update(updateRange, newValue); err != nil {
 		log.Fatal(err)
