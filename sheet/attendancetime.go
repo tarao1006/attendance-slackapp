@@ -13,11 +13,19 @@ type AttendanceTime struct {
 	EndTime       string
 }
 
-func (t *AttendanceTime) SprintRow() string {
+func (t *AttendanceTime) Format() string {
+	if t.StartTime == "" && t.EndTime == "" {
+		return t.sprintRow()
+	} else {
+		return t.sprintTwoRows()
+	}
+}
+
+func (t *AttendanceTime) sprintRow() string {
 	return fmt.Sprintf("%s-%s", t.PlanStartTime, t.PlanEndTime)
 }
 
-func (t *AttendanceTime) SprintTwoRows() string {
+func (t *AttendanceTime) sprintTwoRows() string {
 	if t.PlanStartTime == "" && t.PlanEndTime == "" {
 		return fmt.Sprintf("\n(%s-%s)", t.StartTime, t.EndTime)
 	} else {
