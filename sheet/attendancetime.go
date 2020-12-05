@@ -36,7 +36,7 @@ func (t *AttendanceTime) sprintTwoRows() string {
 	}
 }
 
-func SplitTimes(value string) *AttendanceTime {
+func splitTimes(value string) *AttendanceTime {
 	rows := strings.Split(value, "\n")
 	planTimes := strings.Split(rows[0], "-")
 	times := strings.Split(rows[1], "-")
@@ -86,7 +86,7 @@ func ExtractTime(value string) *AttendanceTime {
 					PlanEndTime:   times[1],
 				}
 			case 2, 3, 4, 5, 6:
-				return SplitTimes(matchedValue)
+				return splitTimes(matchedValue)
 			}
 		}
 	}
