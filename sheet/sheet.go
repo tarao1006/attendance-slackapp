@@ -267,5 +267,5 @@ func (s *SpreadsheetService) getValues(updateRange string) (*sheets.ValueRange, 
 	return srv.Spreadsheets.Values.Get(
 		s.spreadsheetID,
 		updateRange,
-	).MajorDimension("COLUMNS").Do()
+	).MajorDimension("ROWS").Do()
 }
