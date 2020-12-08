@@ -119,10 +119,14 @@ func (s *SpreadsheetService) GetInformation(date string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Println(len(names.Values[0]))
+	log.Println(names.Values[0])
+	log.Println(len(values.Values[0]))
+	log.Println(values.Values[0])
 
-	for i, name := range names.Values[0] {
-		log.Printf("名前: %s 内容: %s", name, values.Values[0][i])
-	}
+	// for i, name := range names.Values[0] {
+	// 	log.Printf("名前: %s 内容: %s", name, values.Values[0][i])
+	// }
 }
 
 func (s *SpreadsheetService) preExecute(date string) {
