@@ -42,23 +42,24 @@ func (information *Information) HandleSlash(w http.ResponseWriter, r *http.Reque
 			if _, err := information.client.PostEphemeral(
 				os.Getenv("ATTENDANCE_CHANNEL_ID"),
 				s.UserID,
-				slack.MsgOptionText("コマンドが不正です。例) /info 2006-01-02", false),
+				slack.MsgOptionText("コマンドが不正です。例) /info 1/2", false),
 			); err != nil {
 				log.Println(err.Error())
 				w.WriteHeader(http.StatusInternalServerError)
 				return
 			}
-		}
-		information.spreadsheetService.GetInformation(dateString)
-		message := "info"
-		if _, err := information.client.PostEphemeral(
-			os.Getenv("ATTENDANCE_CHANNEL_ID"),
-			s.UserID,
-			slack.MsgOptionText(message, false),
-		); err != nil {
-			log.Println(err.Error())
-			w.WriteHeader(http.StatusInternalServerError)
-			return
+		} else {
+			// information.spreadsheetService.GetInformation(dateString)
+			message := "info"
+			if _, err := information.client.PostEphemeral(
+				os.Getenv("ATTENDANCE_CHANNEL_ID"),
+				s.UserID,
+				slack.MsgOptionText(message, false),
+			); err != nil {
+				log.Println(err.Error())
+				w.WriteHeader(http.StatusInternalServerError)
+				return
+			}
 		}
 	default:
 		w.WriteHeader(http.StatusInternalServerError)
