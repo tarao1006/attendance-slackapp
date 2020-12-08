@@ -104,31 +104,6 @@ func (s *SpreadsheetService) Leave(userID string) {
 	}
 }
 
-func (s *SpreadsheetService) GetInformation(date string) {
-	s.preExecute(date)
-
-	targetColumnNumber := s.converter.GetColumnNumber(date)
-	targetColumnString := ConvertIntToString(targetColumnNumber)
-	targetRange := "シート2!" + targetColumnString + "4:" + targetColumnString + "15"
-
-	names, err := s.getValues("シート2!C4:C15")
-	if err != nil {
-		log.Fatal(err)
-	}
-	values, err := s.getValues(targetRange)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	log.Println(names)
-	// log.Println(len(values.Values[0]))
-	log.Println(values)
-
-	// for i, name := range names.Values[0] {
-	// 	log.Printf("名前: %s 内容: %s", name, values.Values[0][i])
-	// }
-}
-
 func (s *SpreadsheetService) preExecute(date string) {
 	targetColumnNumber := s.converter.GetColumnNumber(date)
 	nowColumnCount, sheetID := s.getSheetInfomation()
@@ -256,16 +231,4 @@ func (s *SpreadsheetService) getCurrentValue(updateRange string) string {
 			return ""
 		}
 	}
-}
-
-func (s *SpreadsheetService) getValues(updateRange string) (*sheets.ValueRange, error) {
-	srv, err := s.service()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return srv.Spreadsheets.Values.Get(
-		s.spreadsheetID,
-		updateRange,
-	).MajorDimension("ROWS").Do()
 }
