@@ -121,8 +121,8 @@ func (s *SpreadsheetService) GetInformation(date string) {
 	}
 	log.Println(len(names.Values[0]))
 	log.Println(names.Values[0])
-	log.Println(len(values.Values[0]))
-	log.Println(values.Values[0])
+	// log.Println(len(values.Values[0]))
+	log.Println(values.Values)
 
 	// for i, name := range names.Values[0] {
 	// 	log.Printf("名前: %s 内容: %s", name, values.Values[0][i])
