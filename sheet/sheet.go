@@ -104,8 +104,9 @@ func (s *SpreadsheetService) Leave(userID string) {
 	}
 }
 
-// date は "2006-01-02" の layout で表される。
 func (s *SpreadsheetService) GetInformation(date string) {
+	s.preExecute(date)
+
 	targetColumnNumber := s.converter.GetColumnNumber(date)
 	targetColumnString := ConvertIntToString(targetColumnNumber)
 	targetRange := "シート2!" + targetColumnString + "3:" + targetColumnString + "15"

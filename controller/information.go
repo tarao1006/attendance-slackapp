@@ -49,7 +49,7 @@ func (information *Information) HandleSlash(w http.ResponseWriter, r *http.Reque
 				return
 			}
 		} else {
-			// information.spreadsheetService.GetInformation(dateString)
+			information.spreadsheetService.GetInformation(dateString)
 			message := "info"
 			if _, err := information.client.PostEphemeral(
 				os.Getenv("ATTENDANCE_CHANNEL_ID"),
