@@ -32,30 +32,31 @@ func (submit *Submit) HandleSubmit(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var userID string = payload.User.ID
-	var userName string = payload.User.Name
-	var date string = payload.View.State.Values["date"]["date"].SelectedDate
-	var startTime string = payload.View.State.Values["start_time"]["startTime"].Value
-	var endTime string = payload.View.State.Values["end_time"]["endTime"].Value
+	userID := payload.User.ID
+	userName := payload.User.Name
+	date := payload.View.State.Values["date"]["date"].SelectedDate
+	startTimeString := payload.View.State.Values["start_time"]["startTime"].Value
+	endTimeString := payload.View.State.Values["end_time"]["endTime"].Value
 
-	message := fmt.Sprintf("%s が予定を追加しました\nDate: %s\nStart Time: %s\nEnd Time: %s", userName, date, startTime, endTime)
+	message := fmt.Sprintf("%s が予定を追加しました\nDate: %s\nStart Time: %s\nEnd Time: %s", userName, date, startTimeString, endTimeString)
 
 	timeRegex := regexp.MustCompile("([01][0-9]|2[0-3]):[0-5][0-9]")
 
 	errorMessage := make(map[string]string)
-	if !timeRegex.Match([]byte(startTime)) {
+	if !timeRegex.Match([]byte(startTimeString)) {
 		errorMessage["start_time"] = "不正な入力です。"
 	}
-	if !timeRegex.Match([]byte(endTime)) {
+	if !timeRegex.Match([]byte(endTimeString)) {
 		errorMessage["end_time"] = "不正な入力です。"
 	}
 	if len(errorMessage) != 0 {
 		resp, _ := json.Marshal(slack.NewErrorsViewSubmissionResponse(errorMessage))
+		w.Header().Add("Content-Type", "application/json")
 		w.Write(resp)
 		return
 	}
 
-	submit.spreadsheetService.Add(userID, date, startTime, endTime)
+	submit.spreadsheetService.Add(userID, date, startTimeString, endTimeString)
 
 	if _, err := submit.client.PostEphemeral(
 		os.Getenv("ATTENDANCE_CHANNEL_ID"),
