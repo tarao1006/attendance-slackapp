@@ -42,7 +42,7 @@ func (information *Information) HandleSlash(w http.ResponseWriter, r *http.Reque
 			if _, err := information.client.PostEphemeral(
 				os.Getenv("ATTENDANCE_CHANNEL_ID"),
 				s.UserID,
-				slack.MsgOptionText("コマンドが不正です。例) /info 1/2", false),
+				slack.MsgOptionText("コマンドが不正です。例) /info 2006-01-02", false),
 			); err != nil {
 				log.Println(err.Error())
 				w.WriteHeader(http.StatusInternalServerError)
