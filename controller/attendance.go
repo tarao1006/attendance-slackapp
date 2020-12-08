@@ -41,8 +41,9 @@ func (attendance *Attendance) HandleSlash(w http.ResponseWriter, r *http.Request
 		log.Printf("%s %s", userID, userName)
 		attendance.spreadsheetService.Enter(userID)
 		message := fmt.Sprintf("%s が入室しました", userName)
-		if _, _, err := attendance.client.PostMessage(
+		if _, err := attendance.client.PostEphemeral(
 			os.Getenv("ATTENDANCE_CHANNEL_ID"),
+			userID,
 			slack.MsgOptionText(message, false),
 		); err != nil {
 			log.Println(err.Error())
@@ -54,8 +55,9 @@ func (attendance *Attendance) HandleSlash(w http.ResponseWriter, r *http.Request
 		userName := s.UserName
 		attendance.spreadsheetService.Leave(userID)
 		message := fmt.Sprintf("%s が退室しました", userName)
-		if _, _, err := attendance.client.PostMessage(
+		if _, err := attendance.client.PostEphemeral(
 			os.Getenv("ATTENDANCE_CHANNEL_ID"),
+			userID,
 			slack.MsgOptionText(message, false),
 		); err != nil {
 			log.Println(err.Error())
