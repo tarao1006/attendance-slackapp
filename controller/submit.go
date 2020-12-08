@@ -42,11 +42,7 @@ func (submit *Submit) HandleSubmit(w http.ResponseWriter, r *http.Request) {
 
 	date, _ := time.Parse("2006-01-02", dateString)
 	if date.Before(time.Now()) {
-		resp, _ := json.Marshal(slack.NewErrorsViewSubmissionResponse(map[string]string{
-			"date": "過去の日付に予定は追加できません。",
-		}))
-		w.Header().Add("Content-Type", "application/json")
-		w.Write(resp)
+		submit.ReturnError(w, map[string]string{"date": "過去の日付に予定は追加できません。"})
 		return
 	}
 	errorMessage := make(map[string]string)
@@ -59,17 +55,11 @@ func (submit *Submit) HandleSubmit(w http.ResponseWriter, r *http.Request) {
 		errorMessage["end_time"] = "不正な入力です。"
 	}
 	if len(errorMessage) != 0 {
-		resp, _ := json.Marshal(slack.NewErrorsViewSubmissionResponse(errorMessage))
-		w.Header().Add("Content-Type", "application/json")
-		w.Write(resp)
+		submit.ReturnError(w, errorMessage)
 		return
 	}
 	if !endTime.After(startTime) {
-		resp, _ := json.Marshal(slack.NewErrorsViewSubmissionResponse(map[string]string{
-			"end_time": "終了時刻が開始時刻よりも早いです。",
-		}))
-		w.Header().Add("Content-Type", "application/json")
-		w.Write(resp)
+		submit.ReturnError(w, map[string]string{"end_time": "終了時刻が開始時刻よりも早いです。"})
 		return
 	}
 
@@ -81,6 +71,16 @@ func (submit *Submit) HandleSubmit(w http.ResponseWriter, r *http.Request) {
 		slack.MsgOptionText(message, false),
 	); err != nil {
 		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+}
+
+func (submit *Submit) ReturnError(w http.ResponseWriter, errorMessages map[string]string) {
+	resp, _ := json.Marshal(slack.NewErrorsViewSubmissionResponse(errorMessages))
+	w.Header().Add("Content-Type", "application/json")
+	_, err := w.Write(resp)
+	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
