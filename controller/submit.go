@@ -42,8 +42,16 @@ func (submit *Submit) HandleSubmit(w http.ResponseWriter, r *http.Request) {
 
 	timeRegex := regexp.MustCompile("([01][0-9]|2[0-3]):[0-5][0-9]")
 
-	if !timeRegex.Match([]byte(startTime)) || !timeRegex.Match([]byte(endTime)) {
-		w.WriteHeader(http.StatusBadRequest)
+	errorMessage := make(map[string]string)
+	if !timeRegex.Match([]byte(startTime)) {
+		errorMessage["start_time"] = "不正な入力です。"
+	}
+	if !timeRegex.Match([]byte(endTime)) {
+		errorMessage["end_time"] = "不正な入力です。"
+	}
+	if len(errorMessage) != 0 {
+		resp, _ := json.Marshal(slack.NewErrorsViewSubmissionResponse(errorMessage))
+		w.Write(resp)
 		return
 	}
 
