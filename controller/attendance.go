@@ -35,26 +35,18 @@ func (attendance *Attendance) HandleSlash(w http.ResponseWriter, r *http.Request
 	}
 
 	switch s.Command {
-	case "/in":
+	case "/in", "/out":
+		var t string
+		if s.Command == "/in" {
+			t = "入室"
+		} else {
+			t = "退室"
+		}
 		userID := s.UserID
 		userName := s.UserName
 		log.Printf("%s %s", userID, userName)
 		attendance.spreadsheetService.Enter(userID)
-		message := fmt.Sprintf("%s が入室しました", userName)
-		if _, err := attendance.client.PostEphemeral(
-			os.Getenv("ATTENDANCE_CHANNEL_ID"),
-			userID,
-			slack.MsgOptionText(message, false),
-		); err != nil {
-			log.Println(err.Error())
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-	case "/out":
-		userID := s.UserID
-		userName := s.UserName
-		attendance.spreadsheetService.Leave(userID)
-		message := fmt.Sprintf("%s が退室しました", userName)
+		message := fmt.Sprintf("%s が%sしました", userName, t)
 		if _, err := attendance.client.PostEphemeral(
 			os.Getenv("ATTENDANCE_CHANNEL_ID"),
 			userID,
