@@ -48,12 +48,14 @@ func (s *Server) Route() http.Handler {
 
 	addController := controller.NewAdd(s.client)
 	attendanceController := controller.NewAttendance(s.client, s.spreadsheetService)
+	informationController := controller.NewInformation(s.client, s.spreadsheetService)
 	commandRouter := router.PathPrefix("/").Subrouter()
 	commandRouter.Use(middleware.VerifyingMiddleware)
 	commandRouter.Use(middleware.CommandMiddleware)
 	commandRouter.HandleFunc("/add", addController.HandleSlash)
 	commandRouter.HandleFunc("/enter", attendanceController.HandleSlash)
 	commandRouter.HandleFunc("/leave", attendanceController.HandleSlash)
+	commandRouter.HandleFunc("/info", informationController.HandleSlash)
 
 	return router
 }
