@@ -44,7 +44,6 @@ func (attendance *Attendance) HandleSlash(w http.ResponseWriter, r *http.Request
 		}
 		userID := s.UserID
 		userName := s.UserName
-		log.Printf("%s %s", userID, userName)
 		attendance.spreadsheetService.Enter(userID)
 		message := fmt.Sprintf("%s が%sしました", userName, t)
 		if _, err := attendance.client.PostEphemeral(
