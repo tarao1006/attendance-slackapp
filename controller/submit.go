@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"regexp"
 
 	"github.com/slack-go/slack"
 	"github.com/tarao1006/attendance-slackapp/sheet"
@@ -38,6 +39,13 @@ func (submit *Submit) HandleSubmit(w http.ResponseWriter, r *http.Request) {
 	var endTime string = payload.View.State.Values["end_time"]["endTime"].Value
 
 	message := fmt.Sprintf("%s が予定を追加しました\nDate: %s\nStart Time: %s\nEnd Time: %s", userName, date, startTime, endTime)
+
+	timeRegex := regexp.MustCompile("([01][0-9]|2[0-3]):[0-5][0-9]")
+
+	if !timeRegex.Match([]byte(startTime)) || !timeRegex.Match([]byte(endTime)) {
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	submit.spreadsheetService.Add(userID, date, startTime, endTime)
 
