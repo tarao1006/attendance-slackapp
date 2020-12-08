@@ -109,9 +109,9 @@ func (s *SpreadsheetService) GetInformation(date string) {
 
 	targetColumnNumber := s.converter.GetColumnNumber(date)
 	targetColumnString := ConvertIntToString(targetColumnNumber)
-	targetRange := "シート2!" + targetColumnString + "3:" + targetColumnString + "15"
+	targetRange := "シート2!" + targetColumnString + "4:" + targetColumnString + "15"
 
-	names, err := s.getValues("シート2!C3:C15")
+	names, err := s.getValues("シート2!C4:C15")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -120,9 +120,8 @@ func (s *SpreadsheetService) GetInformation(date string) {
 		log.Fatal(err)
 	}
 
-	for i, name := range names.Values {
-		log.Println(name)
-		log.Println(values.Values[i])
+	for i, name := range names.Values[0] {
+		log.Printf("名前: %s 内容: %s", name, values.Values[0][i])
 	}
 }
 
