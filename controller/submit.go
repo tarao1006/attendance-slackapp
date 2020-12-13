@@ -41,7 +41,7 @@ func (submit *Submit) HandleSubmit(w http.ResponseWriter, r *http.Request) {
 	message := fmt.Sprintf("%s が予定を追加しました\nDate: %s\nStart Time: %s\nEnd Time: %s", userName, dateString, startTimeString, endTimeString)
 
 	date, _ := time.Parse("2006-01-02", dateString)
-	if date.Before(time.Now()) {
+	if date.Before(time.Now().AddDate(0, 0, -1)) {
 		submit.ReturnError(w, map[string]string{"date": "過去の日付に予定は追加できません。"})
 		return
 	}
