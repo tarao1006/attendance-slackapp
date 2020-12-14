@@ -36,15 +36,16 @@ func (attendance *Attendance) HandleSlash(w http.ResponseWriter, r *http.Request
 
 	switch s.Command {
 	case "/in", "/out":
+		userID := s.UserID
+		userName := s.UserName
 		var t string
 		if s.Command == "/in" {
 			t = "入室"
+			attendance.spreadsheetService.Enter(userID)
 		} else {
 			t = "退室"
+			attendance.spreadsheetService.Leave(userID)
 		}
-		userID := s.UserID
-		userName := s.UserName
-		attendance.spreadsheetService.Enter(userID)
 		message := fmt.Sprintf("%s が%sしました", userName, t)
 		if _, err := attendance.client.PostEphemeral(
 			os.Getenv("ATTENDANCE_CHANNEL_ID"),
