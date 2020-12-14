@@ -65,9 +65,8 @@ func (submit *Submit) HandleSubmit(w http.ResponseWriter, r *http.Request) {
 
 	submit.spreadsheetService.Add(userID, dateString, startTimeString, endTimeString)
 
-	if _, err := submit.client.PostEphemeral(
+	if _, _, err := submit.client.PostMessage(
 		os.Getenv("ATTENDANCE_CHANNEL_ID"),
-		userID,
 		slack.MsgOptionText(message, false),
 	); err != nil {
 		log.Println(err)

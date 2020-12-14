@@ -47,9 +47,8 @@ func (attendance *Attendance) HandleSlash(w http.ResponseWriter, r *http.Request
 			attendance.spreadsheetService.Leave(userID)
 		}
 		message := fmt.Sprintf("%s が%sしました", userName, t)
-		if _, err := attendance.client.PostEphemeral(
+		if _, _, err := attendance.client.PostMessage(
 			os.Getenv("ATTENDANCE_CHANNEL_ID"),
-			userID,
 			slack.MsgOptionText(message, false),
 		); err != nil {
 			log.Println(err.Error())
